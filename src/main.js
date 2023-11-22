@@ -5,6 +5,7 @@ import { createPinia } from 'pinia'
 
 import App from './App.vue'
 import Home from './views/Home.vue'
+import Trial from './views/Trial.vue'
 
 const routes = [
   {
@@ -12,6 +13,11 @@ const routes = [
     name: 'Home',
     component: Home,
   },
+  {
+    path: '/trial',
+    name: 'Trial',
+    component: Trial,
+  }
 ]
  
 const router = createRouter({

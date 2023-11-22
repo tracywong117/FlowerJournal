@@ -30,15 +30,9 @@
                   'opacity': eventinfo === draggedItem ? '0.5' : '1',
                   'transition': 'opacity 0.3s'
                 }">
-                <el-popover trigger="click" placement="right" width="400" :show-arrow="false">
-                  <template #reference>
-                    <span class="eventinfo-container background-highlight-1">
-                      {{ eventinfo.category }}
-                    </span>
-                  </template>
-                  <add-event-info :eventinfoid="eventinfo.id"></add-event-info>
-
-                </el-popover>
+                <span class="eventinfo-container background-highlight-1">
+                  {{ eventinfo.category }}
+                </span>
               </div>
 
               <div v-for="n in Math.max(0, 2 - getEventsForDate(Object.keys(dayObj)[0]).length)  ">
@@ -67,14 +61,12 @@
 </template>
   
 <script>
-import { ElButton, ElPopover } from 'element-plus';
+import { ElButton } from 'element-plus';
 import SvgIcon from '@jamescoyle/vue-icon';
 import { mdiChevronLeft, mdiChevronRight } from '@mdi/js';
 
 import { useCalendarStore } from '../stores/store.js';
 import { toRefs } from 'vue';
-
-import AddEventInfo from './AddEventInfo.vue';
 
 
 export default {
@@ -100,9 +92,6 @@ export default {
   components: {
     ElButton,
     SvgIcon,
-    ElPopover,
-    AddEventInfo,
-
 
   },
   data() {
@@ -111,6 +100,7 @@ export default {
       mdiChevronRight_path: mdiChevronRight,
       draggedItem: null,
       hoveredField: null,
+      openDialog: false,
 
     };
   },
@@ -222,23 +212,12 @@ export default {
         this.hoveredField = null;
       }
     },
-    updateEvent(updatedEvent) {
-      // Find the index of the event in the events array
-      console.log(updatedEvent);
-      const index = this.events.findIndex(event => event.id === updatedEvent.id);
-      if (index !== -1) {
-        // Update the event with the updated information
-        this.events.splice(index, 1, updatedEvent);
-      }
-    }
-
+    
   }
 };
 </script>
   
 <style>
-@import '../assets/css/el-element-modify.css';
-
 table {
   width: 80%;
   border-collapse: collapse;

@@ -17,43 +17,32 @@
         </tr>
       </thead>
       <tbody style="vertical-align: baseline;">
-        <tr v-for="week in calendarData">
+        <tr v-for="(week, index) in calendarData">
           <td v-for="dayObj in week">
-            <div @dragover="allowDrop" @dragenter="dragEnter(Object.keys(dayObj)[0])" @drop="drop(Object.keys(dayObj)[0])"
-              :class="{ 'hovered': hoveredField === Object.keys(dayObj)[0] }">
+            <div>
               <span class="calendar-day-select"
                 :class="{ 'current-day': isCurrentDay(Object.keys(dayObj)[0]), 'not-current-month': isNotInputMonth(Object.keys(dayObj)[0]) }"
                 @click="handleSelectDate(Object.keys(dayObj)[0])">{{
                   Object.values(dayObj)[0] }}</span><br>
-              <div v-for="eventinfo in getEventsForDate(Object.keys(dayObj)[0]).slice(0, 2)  " :draggable="true"
-                @dragstart="startDrag(eventinfo, $event)" :style="{
-                  'opacity': eventinfo === draggedItem ? '0.5' : '1',
-                  'transition': 'opacity 0.3s'
-                }">
-                <el-popover trigger="click" placement="right" width="400" :show-arrow="false">
-                  <template #reference>
-                    <span class="eventinfo-container background-highlight-1">
-                      {{ eventinfo.category }}
-                    </span>
-                  </template>
-                  <add-event-info :eventinfoid="eventinfo.id"></add-event-info>
-
-                </el-popover>
+              <div v-for="event in getEventsForDate(Object.keys(dayObj)[0]).slice(0,2)">
+                <span class="event-container background-highlight-1">
+                  {{ event.category }}
+                </span>
               </div>
 
-              <div v-for="n in Math.max(0, 2 - getEventsForDate(Object.keys(dayObj)[0]).length)  ">
-                <span class="eventinfo-container background-highlight-1" style="visibility: hidden;">
+              <div v-for="n in Math.max(0, 2 - getEventsForDate(Object.keys(dayObj)[0]).length)">
+                <span class="event-container background-highlight-1" style="visibility: hidden;">
                   XXX
                 </span>
               </div>
 
               <div v-if="getEventsForDate(Object.keys(dayObj)[0]).length > 2">
-                <span class="more-eventinfo-container">
+                <span class="more-event-container">
                   {{ getEventsForDate(Object.keys(dayObj)[0]).length - 2 }} more...
                 </span>
               </div>
               <div v-else>
-                <span class="more-eventinfo-container" style="visibility: hidden;">
+                <span class="more-event-container" style="visibility: hidden;">
                   ...
                 </span>
               </div>
@@ -67,14 +56,12 @@
 </template>
   
 <script>
-import { ElButton, ElPopover } from 'element-plus';
+import { ElButton } from 'element-plus';
 import SvgIcon from '@jamescoyle/vue-icon';
 import { mdiChevronLeft, mdiChevronRight } from '@mdi/js';
 
 import { useCalendarStore } from '../stores/store.js';
 import { toRefs } from 'vue';
-
-import AddEventInfo from './AddEventInfo.vue';
 
 
 export default {
@@ -84,8 +71,8 @@ export default {
     const calendarState = toRefs(calendarStore);
 
     const getEventsForDate = (date) => {
-      return calendarState.events.value.filter((eventinfo) => {
-        const eventDate = new Date(eventinfo.date);
+      return calendarState.events.value.filter((event) => {
+        const eventDate = new Date(event.date);
         const providedDate = new Date(date);
 
         return eventDate.toLocaleDateString() === providedDate.toLocaleDateString();
@@ -99,19 +86,12 @@ export default {
   },
   components: {
     ElButton,
-    SvgIcon,
-    ElPopover,
-    AddEventInfo,
-
-
+    SvgIcon
   },
   data() {
     return {
       mdiChevronLeft_path: mdiChevronLeft,
       mdiChevronRight_path: mdiChevronRight,
-      draggedItem: null,
-      hoveredField: null,
-
     };
   },
   mounted() {
@@ -159,8 +139,7 @@ export default {
       console.log(calendarData);
 
       return calendarData;
-    },
-
+    }
   },
   methods: {
     isCurrentDay(day) {
@@ -188,57 +167,11 @@ export default {
       const nextMonthDate = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, currentDate.getDate());
       this.dt = nextMonthDate;
     },
-    startDrag(eventinfo, event) {
-      this.draggedItem = eventinfo;
-      console.log(this.draggedItem);
-      event.dataTransfer.effectAllowed = "move";
-      event.dataTransfer.setData("text/plain", ""); // Necessary for Firefox
-    },
-    allowDrop(event) {
-      event.preventDefault();
-    },
-    dragEnter(newIndex) {
-      console.log(`Item first touched index: ${newIndex}`);
-      if (this.draggedItem) {
-        this.hoveredField = newIndex;
-      }
-    },
-    drop(newIndex) {
-      if (this.draggedItem) {
-        if (this.draggedItem.index !== newIndex) {
-          console.log(`Item moved to index: ${newIndex}`);
-        }
-
-        const offset = new Date(newIndex).getTimezoneOffset();
-        const tempdate = new Date(new Date(newIndex).getTime() - (offset * 60 * 1000));
-        const formattedDate = tempdate.toISOString().split('T')[0];
-
-        console.log(formattedDate);
-        this.draggedItem.date = formattedDate;
-
-        console.log(this.events);
-
-        this.draggedItem = null;
-        this.hoveredField = null;
-      }
-    },
-    updateEvent(updatedEvent) {
-      // Find the index of the event in the events array
-      console.log(updatedEvent);
-      const index = this.events.findIndex(event => event.id === updatedEvent.id);
-      if (index !== -1) {
-        // Update the event with the updated information
-        this.events.splice(index, 1, updatedEvent);
-      }
-    }
-
   }
 };
 </script>
   
 <style>
-@import '../assets/css/el-element-modify.css';
-
 table {
   width: 80%;
   border-collapse: collapse;
@@ -298,7 +231,7 @@ td {
 
 }
 
-.eventinfo-container {
+.event-container {
   text-align: left;
   font-size: 12px;
   display: block;
@@ -317,7 +250,7 @@ td {
   border: 0.5px solid var(--primary-light-sharp-color-1);
 }
 
-.more-eventinfo-container {
+.more-event-container {
   text-align: center;
   font-size: 12px;
   display: block;
@@ -325,4 +258,5 @@ td {
   margin: 2px;
   cursor: pointer;
 }
+
 </style>

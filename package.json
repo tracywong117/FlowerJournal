@@ -10,6 +10,11 @@
   "dependencies": {
     "@jamescoyle/vue-icon": "^0.1.2",
     "@mdi/js": "^7.3.67",
+    "@tiptap/extension-task-item": "^2.1.12",
+    "@tiptap/extension-task-list": "^2.1.12",
+    "@tiptap/pm": "^2.1.12",
+    "@tiptap/starter-kit": "^2.1.12",
+    "@tiptap/vue-3": "^2.1.12",
     "element-plus": "^2.4.0",
     "pinia": "^2.1.7",
     "vue": "^3.3.4",
@@ -17,6 +22,7 @@
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "^4.3.4",
+    "sass": "^1.69.5",
     "vite": "^4.4.9"
   }
 }
