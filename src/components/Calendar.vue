@@ -10,7 +10,7 @@
         <SvgIcon type="mdi" :path="mdiChevronRight_path"></SvgIcon>
       </el-button>
     </div>
-    <table>
+    <table class="monthlyCalendarLarge">
       <thead>
         <tr>
           <th v-for="day in daysOfWeek" style="color: var(--primary-font-color-1); font-size: 14px;">{{ day }}</th>
@@ -246,18 +246,18 @@ table {
 
 }
 
-th {
+.monthlyCalendarLarge th {
   border-bottom: 1px solid var(--primary-light-color-1);
 }
 
-th,
-td {
+.monthlyCalendarLarge th,
+.monthlyCalendarLarge td {
   text-align: right;
   padding: 2px;
   width: 14.285%;
 }
 
-td {
+.monthlyCalendarLarge td {
   border: 1px solid var(--primary-light-color-1);
 }
 

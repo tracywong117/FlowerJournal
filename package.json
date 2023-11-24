@@ -10,6 +10,7 @@
   "dependencies": {
     "@jamescoyle/vue-icon": "^0.1.2",
     "@mdi/js": "^7.3.67",
+    "@tiptap/extension-placeholder": "^2.1.12",
     "@tiptap/extension-task-item": "^2.1.12",
     "@tiptap/extension-task-list": "^2.1.12",
     "@tiptap/pm": "^2.1.12",
