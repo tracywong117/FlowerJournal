@@ -129,6 +129,7 @@ export default {
   data() {
     return {
       editor: null,
+      editorContent: '',
       mdiFormatBoldPath: mdiFormatBold,
       mdiFormatItalicPath: mdiFormatItalic,
       mdiFormatStrikethroughVariantPath: mdiFormatStrikethroughVariant,
@@ -145,7 +146,23 @@ export default {
     }
   },
 
+  props: {
+    modelValue: {
+      type: String,
+      required: true,
+    },
+  },
+
+  watch: {
+    modelValue(newValue) {
+      this.editorContent = newValue;
+    },
+  },
+
   mounted() {
+    // this.editorContent = this.modelValue;
+    console.log("modelvalue", this.modelValue);
+    // console.log(this.editorContent);
     this.editor = new Editor({
       extensions: [
         StarterKit,
@@ -157,12 +174,22 @@ export default {
           placeholder: 'Write something …',
         }),
       ],
-      content: "",
+      content: this.modelValue,
+      onUpdate: ({ editor }) => {
+        this.$emit('update:modelValue', editor.getHTML());
+      }
     })
   },
 
   beforeUnmount() {
     this.editor.destroy()
+  },
+
+  methods: {
+    updateContent() {
+      console.log(this.editorContent);
+      this.$emit('update:modelValue', this.editorContent);
+    },
   },
 }
 </script>
@@ -238,7 +265,7 @@ button.is-active {
         appearance: none;
       }
 
-      
+
 
       >div {
         flex: 1 1 auto;

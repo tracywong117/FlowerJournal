@@ -33,7 +33,7 @@
                 <el-popover trigger="click" placement="right" width="400" :show-arrow="false">
                   <template #reference>
                     <span class="eventinfo-container background-highlight-1">
-                      {{ eventinfo.category }}
+                      {{ eventinfo.name }}
                     </span>
                   </template>
                   <add-event-info :eventinfoid="eventinfo.id"></add-event-info>

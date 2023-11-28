@@ -26,7 +26,7 @@
                   Object.values(dayObj)[0] }}</span><br>
               <div v-for="event in getEventsForDate(Object.keys(dayObj)[0]).slice(0,2)">
                 <span class="event-container background-highlight-1">
-                  {{ event.category }}
+                  {{ event.name }}
                 </span>
               </div>
 

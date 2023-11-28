@@ -6,6 +6,7 @@ import { createPinia } from 'pinia'
 import App from './App.vue'
 import Home from './views/Home.vue'
 import Trial from './views/Trial.vue'
+import Preview from './views/Preview.vue'
 
 const routes = [
   {
@@ -17,6 +18,11 @@ const routes = [
     path: '/trial',
     name: 'Trial',
     component: Trial,
+  },
+  {
+    path: '/preview',
+    name: 'Preview',
+    component: Preview,
   }
 ]
  

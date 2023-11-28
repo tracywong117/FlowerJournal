@@ -8,35 +8,36 @@ export const useCalendarStore = defineStore('calendar', {
         id: 1, 
         time: '10:00 AM - 12:00 PM',
         date: '2023-11-15',
-        category: 'Meeting',
-        remark: 'Discuss project updates',
-        todo: ''
+        name: 'Meeting',
+        remark: '',
+        category: '',
       },
       {
         id: 2, 
         time: '2:00 PM - 3:30 PM',
         date: '2023-11-18',
-        category: 'Workshop',
-        remark: 'Introduction to new tools',
-        todo: 'Prepare presentation slides'
+        name: 'Workshop',
+        remark: '<h1>This is header h1.</h1> <h2>This is header h2.</h2>',
+        category: '',
       },
       {
         id: 3, 
         time: '',
         date: '2023-11-18',
-        category: 'Workshop',
-        remark: '',
-        todo: ''
+        name: 'Workshop',
+        remark: '<h1>This is header h1.</h1> <h2>This is header h2.</h2>',
+        category: '',
       },
       {
         id: 4, 
         time: '',
         date: '2023-11-18',
-        category: 'Leisure',
-        remark: '',
-        todo: ''
+        name: 'Leisure',
+        remark: '<h1>This is header h1.</h1> <h2>This is header h2.</h2>',
+        category: '',
       },
-    ]
+    ],
+    eventViewVisible: false,
 
   }),
 

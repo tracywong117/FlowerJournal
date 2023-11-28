@@ -1,16 +1,16 @@
 <template>
   <div>
     <div style="padding: 20px;">
-      <div
-        style="display: flex; align-items: center; padding-bottom: 5px; justify-content: space-between; padding-bottom: 10px;">
-        <div style="display: flex; align-items: center; color: var(--primary-font-color-2);" class="text-hover">
-
-          <el-popover placement="bottom-start" width="300" trigger="click">
+      <div style="display: flex; align-items: center; padding-bottom: 5px; justify-content: space-between; padding-bottom: 10px;">
+        <div style="color: var(--primary-font-color-2);" class="text-hover">
+          <el-popover popper-style="border:  1px solid #c1b5ce;" placement="bottom-start" width="300" trigger="click" :show-arrow="false">
             <template #reference>
-              <svg-icon type="mdi" :path="mdiCalendarPath" style="padding-right: 5px;" width="20" height="20"></svg-icon>
-              <span style="color: var(--primary-font-color-2);">{{ formattedDate }}</span>
+              <div style="display: flex; align-items: center;">
+                <svg-icon type="mdi" :path="mdiCalendarPath" style="padding-right: 5px;" width="20" height="20"></svg-icon>
+                <span style="color: var(--primary-font-color-2);">{{ formattedDate }}</span>
+              </div>
             </template>
-            <small-calendar v-if="eventinfo && eventinfo.date" :date-selected="eventinfo.date"></small-calendar>
+            <small-calendar v-if="eventinfo && eventinfo.date" v-model="eventinfo.date"></small-calendar>
           </el-popover>
 
         </div>
@@ -20,8 +20,12 @@
             eventinfo.time }}</span>
         </div>
       </div>
-      <input ref="input" type="text" v-model="eventinfo.category" />
-      <RichtextEditor></RichtextEditor>
+      <input ref="input" type="text" v-model="eventinfo.name" />
+      <div v-if="eventinfo.remark || eventinfo.remark == ''">
+        <RichtextEditor v-model="eventinfo.remark"></RichtextEditor>
+      </div>
+      <el-button plain color="rgb(139, 92, 246)" style="width: 80px;">Done</el-button>
+      <el-button plain color="rgb(189, 101, 166)" style="width: 80px;">Delete</el-button>
     </div>
 
   </div>
@@ -66,7 +70,8 @@ export default {
   data() {
     return {
       eventinfo: {
-        date: '',
+        // date: '',
+        // remark: '',
       },
       mdiCalendarPath: mdiCalendar,
       mdiClockTimeFourOutlinePath: mdiClockTimeFourOutline,
@@ -101,7 +106,11 @@ export default {
 };
 </script>
 
-<style>
+<style scoped>
+.small-calendar-popover-container .el-popper.is-light {
+  border: 1px solid #c1b5ce;
+}
+
 input {
   width: 100%;
   outline: 0;

@@ -31,7 +31,7 @@
                   'transition': 'opacity 0.3s'
                 }">
                 <span class="eventinfo-container background-highlight-1">
-                  {{ eventinfo.category }}
+                  {{ eventinfo.name }}
                 </span>
               </div>
 
