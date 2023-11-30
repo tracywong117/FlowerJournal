@@ -1,12 +1,15 @@
 <template>
   <div>
     <div style="padding: 20px;">
-      <div style="display: flex; align-items: center; padding-bottom: 5px; justify-content: space-between; padding-bottom: 10px;">
+      <div
+        style="display: flex; align-items: center; padding-bottom: 5px; justify-content: space-between; padding-bottom: 10px;">
         <div style="color: var(--primary-font-color-2);" class="text-hover">
-          <el-popover popper-style="border:  1px solid #c1b5ce;" placement="bottom-start" width="300" trigger="click" :show-arrow="false">
+          <el-popover popper-style="border:  1px solid #c1b5ce;" placement="bottom-start" width="300" trigger="click"
+            :show-arrow="false">
             <template #reference>
               <div style="display: flex; align-items: center;">
-                <svg-icon type="mdi" :path="mdiCalendarPath" style="padding-right: 5px;" width="20" height="20"></svg-icon>
+                <svg-icon type="mdi" :path="mdiCalendarPath" style="padding-right: 5px;" width="20"
+                  height="20"></svg-icon>
                 <span style="color: var(--primary-font-color-2);">{{ formattedDate }}</span>
               </div>
             </template>
@@ -14,10 +17,35 @@
           </el-popover>
 
         </div>
-        <div style="display: flex; align-items: center;" class="text-hover">
+        <div style="display: flex; align-items: center;">
           <svg-icon type="mdi" :path="mdiClockTimeFourOutlinePath" width="20" height="20"></svg-icon>
-          <span v-if="eventinfo.time != ''" style="padding-left: 5px; color: var(--primary-font-color-2);">{{
-            eventinfo.time }}</span>
+          <div class="text-hover">
+            <el-popover popper-style="border:  1px solid #c1b5ce;" placement="bottom-start" width="300" trigger="click"
+            :show-arrow="false">
+              <template #reference>
+                <span v-if="eventinfo.starttime != ''" style="padding:0 1px; color: var(--primary-font-color-2); ">{{
+                  eventinfo.starttime }}</span>
+                <span v-else style="margin: 0 20px;"></span>
+              </template>
+              <div style="display: flex; justify-content: center; align-items: center;">
+                <time-picker v-model="eventinfo.starttime"></time-picker>
+              </div>
+            </el-popover>
+          </div>
+          <span>:</span>
+          <div class="text-hover">
+            <el-popover popper-style="border:  1px solid #c1b5ce;" placement="bottom-start" width="300" trigger="click"
+            :show-arrow="false">
+              <template #reference>
+                <span v-if="eventinfo.endtime != ''" style="padding:0 1px; color: var(--primary-font-color-2); ">{{
+                  eventinfo.endtime }}</span>
+                <span v-else style="margin: 0 20px;"></span>
+              </template>
+              <div style="display: flex; justify-content: center; align-items: center;">
+                <time-picker v-model="eventinfo.endtime"></time-picker>
+              </div>
+            </el-popover>
+          </div>
         </div>
       </div>
       <input ref="input" type="text" v-model="eventinfo.name" />
@@ -42,6 +70,7 @@ import { mdiCalendar, mdiClockTimeFourOutline } from '@mdi/js';
 
 import RichtextEditor from '../components/RichtextEditor.vue';
 import SmallCalendar from './SmallCalendar.vue';
+import TimePicker from './TimePicker.vue';
 
 export default {
   setup() {
@@ -59,6 +88,7 @@ export default {
     ElButton,
     SmallCalendar,
     ElPopover,
+    TimePicker,
 
   },
   props: {

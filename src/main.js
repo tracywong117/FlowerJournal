@@ -1,12 +1,13 @@
 import 'element-plus/dist/index.css'
 import { createApp } from 'vue'
-import {createRouter, createWebHashHistory} from 'vue-router'
+import {createRouter, createWebHistory} from 'vue-router'
 import { createPinia } from 'pinia'
 
 import App from './App.vue'
 import Home from './views/Home.vue'
 import Trial from './views/Trial.vue'
 import Preview from './views/Preview.vue'
+
 
 const routes = [
   {
@@ -25,9 +26,9 @@ const routes = [
     component: Preview,
   }
 ]
- 
+
 const router = createRouter({
-  history: createWebHashHistory(),
+  history: createWebHistory(),
   routes,
 })
 
