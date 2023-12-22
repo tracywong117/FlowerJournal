@@ -45,11 +45,16 @@ export const useCalendarStore = defineStore('calendar', {
         category: '',
       },
     ],
-    eventViewVisible: false,
-
+    showAddEventInfoVisible: false,
+    showAddEventInfoRef: null,
+    currentShowAddEventInfoId: null,
+    dateToConfirm: '',
+    // eventViewVisible: false,
+    // eventPopoverVisible: false,
+    // calendarEventRef: null,
   }),
 
   actions: {
-
+    //
   }
 });

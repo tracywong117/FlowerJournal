@@ -38,8 +38,10 @@ export default {
     };
   },
   mounted() {
-    this.parseModelValue();
-    console.log(this.hour);
+    if (this.modelValue != ''){
+      this.parseModelValue();
+      
+    }
   },
   methods: {
     incrementHour() {
@@ -127,8 +129,8 @@ export default {
    border-width: 1px 0 1px 0;
    border-top: 1px solid #b3a3d0;
    border-bottom: 1px solid #b3a3d0;
-   font-size: 40px;
-   width: 80px;
+   font-size: 16px;
+   width: 50px;
    color: var(--primary-font-color-2);
  }
 
@@ -150,9 +152,9 @@ export default {
  }
 
  .arrow {
-    margin: 1px;
-   width: 40px;
-   height: 40px;
+   margin: 1px;
+   width: 16px;
+   height: 16px;
    /* border: none; */
    color: var(--primary-font-color-1);
    background-color: transparent;
@@ -161,6 +163,7 @@ export default {
 
  .select-am-pm {
    border: 1px solid #b3a3d0;
+   width: 30px;
 
  }
 </style>

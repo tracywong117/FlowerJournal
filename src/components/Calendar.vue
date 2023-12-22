@@ -30,15 +30,23 @@
                   'opacity': eventinfo === draggedItem ? '0.5' : '1',
                   'transition': 'opacity 0.3s'
                 }">
-                <el-popover trigger="click" placement="right" width="400" :show-arrow="false">
+                <!-- <el-popover trigger="click" placement="right" width="400" :show-arrow="false" :visible="showAddEventInfoVisible">
                   <template #reference>
-                    <span class="eventinfo-container background-highlight-1">
+                    <span :ref="`eventinfo-${eventinfo.id}`" class="eventinfo-container background-highlight-1" @click="showAddEventInfoVisible = !showAddEventInfoVisible">
                       {{ eventinfo.name }}
                     </span>
                   </template>
                   <add-event-info :eventinfoid="eventinfo.id"></add-event-info>
+                </el-popover> -->
+                <span :ref="`eventinfo-${eventinfo.id}`" class="eventinfo-container background-highlight-1"
+                  @click="handleToggleAddEventInfo(eventinfo.id)">
+                  {{ eventinfo.name }}
+                </span>
 
+                <el-popover :visible="showAddEventInfoVisible" :virtual-ref="showAddEventInfoRef" virtual-triggering placement="right" width="400" :show-arrow="false">
+                  <add-event-info :eventinfoid="eventinfo.id"></add-event-info>
                 </el-popover>
+
               </div>
 
               <div v-for="n in Math.max(0, 2 - getEventsForDate(Object.keys(dayObj)[0]).length)  ">
@@ -230,7 +238,23 @@ export default {
         // Update the event with the updated information
         this.events.splice(index, 1, updatedEvent);
       }
+    },
+    handleToggleAddEventInfo(id){
+      if (this.currentShowAddEventInfoId !== id) {
+        if (this.showAddEventInfoVisible) {
+          this.showAddEventInfoVisible = false;
+        }
+      }
+      console.log(id);
+      const triggeringElement = this.$refs[`eventinfo-${id}`][0];
+      if (triggeringElement) {
+        this.showAddEventInfoRef = triggeringElement;
+        this.currentShowAddEventInfoId = id;
+        this.showAddEventInfoVisible = !this.showAddEventInfoVisible;
+      }
+
     }
+
 
   }
 };
