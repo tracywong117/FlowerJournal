@@ -156,7 +156,7 @@ export default {
     },
     nextMonth() {
       console.log('nextMonth');
-      const currentDate = this.monthBrowsing;
+      const currentDate = new Date(this.monthBrowsing);
       const nextMonthDate = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, currentDate.getDate());
       this.monthBrowsing = nextMonthDate;
       console.log(this.monthBrowsing);

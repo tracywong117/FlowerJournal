@@ -1,61 +1,57 @@
 <template>
-  <div>
-    <div style="padding: 20px;">
-      <div
-        style="display: flex; align-items: center; padding-bottom: 5px; justify-content: space-between; padding-bottom: 10px;">
-        <div style="color: var(--primary-font-color-2);" class="text-hover">
-          <el-popover popper-style="border:  1px solid #c1b5ce;" placement="bottom-start" width="300" trigger="click"
+  <div style="padding: 20px;">
+    <div
+      style="display: flex; align-items: center; padding-bottom: 5px; justify-content: space-between; padding-bottom: 10px;">
+      <div style="color: var(--primary-font-color-2);" class="text-hover">
+        <el-popover popper-style="border:  1px solid #c1b5ce;" placement="bottom-start" width="300" trigger="click"
+          :show-arrow="false">
+          <template #reference>
+            <div style="display: flex; align-items: center;">
+              <svg-icon type="mdi" :path="mdiCalendarPath" style="padding-right: 5px;" width="20" height="20"></svg-icon>
+              <span style="color: var(--primary-font-color-2);">{{ formattedDate }}</span>
+            </div>
+          </template>
+          <small-calendar v-if="eventinfo && eventinfo.date" v-model="dateToConfirm"></small-calendar>
+        </el-popover>
+
+      </div>
+      <div style="display: flex; align-items: center;">
+        <svg-icon type="mdi" :path="mdiClockTimeFourOutlinePath" width="20" height="20"></svg-icon>
+        <!-- <div class="text-hover">
+          <el-popover popper-style="border:  1px solid #c1b5ce;" placement="bottom-start" width="200" trigger="click"
             :show-arrow="false">
             <template #reference>
-              <div style="display: flex; align-items: center;">
-                <svg-icon type="mdi" :path="mdiCalendarPath" style="padding-right: 5px;" width="20"
-                  height="20"></svg-icon>
-                <span style="color: var(--primary-font-color-2);">{{ formattedDate }}</span>
-              </div>
+              <span v-if="eventinfo.starttime != ''" style="padding:0 1px; color: var(--primary-font-color-2); ">{{
+                eventinfo.starttime }}</span>
+              <span v-else style="margin: 0 20px;"></span>
             </template>
-            <small-calendar v-if="eventinfo && eventinfo.date" v-model="dateToConfirm"></small-calendar>
+            <div style="display: flex; justify-content: center; align-items: center;" v-if="eventinfo.starttime != ''">
+              <time-picker v-model="eventinfo.starttime"></time-picker>
+            </div>
           </el-popover>
-
-        </div>
-        <div style="display: flex; align-items: center;">
-          <svg-icon type="mdi" :path="mdiClockTimeFourOutlinePath" width="20" height="20"></svg-icon>
-          <div class="text-hover">
-            <el-popover popper-style="border:  1px solid #c1b5ce;" placement="bottom-start" width="200" trigger="click"
-              :show-arrow="false">
-              <template #reference>
-                <span v-if="eventinfo.starttime != ''" style="padding:0 1px; color: var(--primary-font-color-2); ">{{
-                  eventinfo.starttime }}</span>
-                <span v-else style="margin: 0 20px;"></span>
-              </template>
-              <div style="display: flex; justify-content: center; align-items: center;" v-if="eventinfo.starttime != ''">
-                <!-- <time-picker v-model="eventinfo.starttime"></time-picker> -->
-              </div>
-            </el-popover>
-          </div>
-          <span>:</span>
-          <div class="text-hover">
-            <el-popover popper-style="border:  1px solid #c1b5ce;" placement="bottom-start" width="200" trigger="click"
-              :show-arrow="false">
-              <template #reference>
-                <span v-if="eventinfo.endtime != ''" style="padding:0 1px; color: var(--primary-font-color-2); ">{{
-                  eventinfo.endtime }}</span>
-                <span v-else style="margin: 0 20px;"></span>
-              </template>
-              <div style="display: flex; justify-content: center; align-items: center;" v-if="eventinfo.starttime != ''">
-                <!-- <time-picker v-model="eventinfo.endtime"></time-picker> -->
-              </div>
-            </el-popover>
-          </div>
-        </div>
+        </div> -->
+        <span>:</span>
+        <!-- <div class="text-hover">
+          <el-popover popper-style="border:  1px solid #c1b5ce;" placement="bottom-start" width="200" trigger="click"
+            :show-arrow="false">
+            <template #reference>
+              <span v-if="eventinfo.endtime != ''" style="padding:0 1px; color: var(--primary-font-color-2); ">{{
+                eventinfo.endtime }}</span>
+              <span v-else style="margin: 0 20px;"></span>
+            </template>
+            <div style="display: flex; justify-content: center; align-items: center;" v-if="eventinfo.starttime != ''">
+              <time-picker v-model="eventinfo.endtime"></time-picker>
+            </div>
+          </el-popover>
+        </div> -->
       </div>
-      <input ref="input" type="text" v-model="eventinfo.name" />
-      <div v-if="eventinfo.remark || eventinfo.remark == ''">
-        <RichtextEditor v-model="eventinfo.remark"></RichtextEditor>
-      </div>
-      <el-button plain color="rgb(139, 92, 246)" style="width: 80px;" @click="handleDone">Done</el-button>
-      <el-button plain color="rgb(189, 101, 166)" style="width: 80px;">Delete</el-button>
     </div>
-
+    <input ref="input" type="text" v-model="eventinfo.name" />
+    <div v-if="eventinfo.remark || eventinfo.remark == ''">
+      <RichtextEditor v-model="eventinfo.remark"></RichtextEditor>
+    </div>
+    <el-button plain color="rgb(139, 92, 246)" style="width: 80px;" @click="handleDone">Done</el-button>
+    <el-button plain color="rgb(189, 101, 166)" style="width: 80px;">Delete</el-button>
   </div>
 </template>
 
@@ -127,7 +123,7 @@ export default {
       return formatted;
     },
     handleDone() {
-      this.showAddEventInfoVisible = false;
+      this.showEventDialog = false;
       setTimeout(() => {
         this.eventinfo.date = this.dateToConfirm;
       }, 100);
@@ -136,7 +132,8 @@ export default {
   computed: {
     formattedDate() {
       if (this.eventinfo && this.eventinfo.date) {
-        return this.formatDate(this.eventinfo.date);
+        // return this.formatDate(this.eventinfo.date);
+        return this.formatDate(this.dateToConfirm)
       }
       return '';
     },

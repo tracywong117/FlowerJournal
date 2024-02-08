@@ -30,22 +30,10 @@
                   'opacity': eventinfo === draggedItem ? '0.5' : '1',
                   'transition': 'opacity 0.3s'
                 }">
-                <!-- <el-popover trigger="click" placement="right" width="400" :show-arrow="false" :visible="showAddEventInfoVisible">
-                  <template #reference>
-                    <span :ref="`eventinfo-${eventinfo.id}`" class="eventinfo-container background-highlight-1" @click="showAddEventInfoVisible = !showAddEventInfoVisible">
-                      {{ eventinfo.name }}
-                    </span>
-                  </template>
-                  <add-event-info :eventinfoid="eventinfo.id"></add-event-info>
-                </el-popover> -->
-                <span :ref="`eventinfo-${eventinfo.id}`" class="eventinfo-container background-highlight-1"
-                  @click="handleToggleAddEventInfo(eventinfo.id)">
+
+                <span class="eventinfo-container background-highlight-1" @click="handleOpenEventDialog(eventinfo)">
                   {{ eventinfo.name }}
                 </span>
-
-                <el-popover :visible="showAddEventInfoVisible" :virtual-ref="showAddEventInfoRef" virtual-triggering placement="right" width="400" :show-arrow="false">
-                  <add-event-info :eventinfoid="eventinfo.id"></add-event-info>
-                </el-popover>
 
               </div>
 
@@ -72,10 +60,13 @@
       </tbody>
     </table>
   </div>
+  <el-dialog v-model="showEventDialog" :modal=false>
+    <add-event-info :eventinfoid="showEventId"></add-event-info>
+  </el-dialog>
 </template>
   
 <script>
-import { ElButton, ElPopover } from 'element-plus';
+import { ElButton, ElPopover, ElDialog } from 'element-plus';
 import SvgIcon from '@jamescoyle/vue-icon';
 import { mdiChevronLeft, mdiChevronRight } from '@mdi/js';
 
@@ -109,8 +100,8 @@ export default {
     ElButton,
     SvgIcon,
     ElPopover,
+    ElDialog,
     AddEventInfo,
-
 
   },
   data() {
@@ -239,21 +230,11 @@ export default {
         this.events.splice(index, 1, updatedEvent);
       }
     },
-    handleToggleAddEventInfo(id){
-      if (this.currentShowAddEventInfoId !== id) {
-        if (this.showAddEventInfoVisible) {
-          this.showAddEventInfoVisible = false;
-        }
-      }
-      console.log(id);
-      const triggeringElement = this.$refs[`eventinfo-${id}`][0];
-      if (triggeringElement) {
-        this.showAddEventInfoRef = triggeringElement;
-        this.currentShowAddEventInfoId = id;
-        this.showAddEventInfoVisible = !this.showAddEventInfoVisible;
-      }
-
-    }
+    handleOpenEventDialog(eventinfo) {
+      this.showEventDialog = true;
+      this.showEventId = eventinfo.id;
+      console.log("Handle open event dialog");
+    },
 
 
   }
