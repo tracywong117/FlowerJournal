@@ -1,9 +1,0 @@
-.el-popover.el-popper {
-    box-shadow: none;
-    border-radius: 25px;
-}
-
-.el-popper.is-light {
-    background: var(--primary-background-color-1);
-    border: none;
-}

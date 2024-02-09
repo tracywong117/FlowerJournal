@@ -162,7 +162,6 @@ export default {
   mounted() {
     // this.editorContent = this.modelValue;
     console.log("modelvalue", this.modelValue);
-    // console.log(this.editorContent);
     this.editor = new Editor({
       extensions: [
         StarterKit,
@@ -293,15 +292,13 @@ button.is-active {
   }
 
   h1 {
-    color: rgb(137, 1, 117);
+    // background-color: rgb(254, 250, 255);
+    color: rgb(205, 172, 234);
   }
 
   h2 {
-    color: rgb(105, 60, 221);
-  }
-
-  h3 {
-    color: rgb(60, 122, 221);
+    // background-color: rgb(250, 253, 255);
+    color: rgb(96, 127, 194);
   }
 
   strong {

@@ -20,7 +20,7 @@
         <tr v-for="week in calendarData">
           <td v-for="dayObj in week">
             <div @dragover="allowDrop" @dragenter="dragEnter(Object.keys(dayObj)[0])" @drop="drop(Object.keys(dayObj)[0])"
-              :class="{ 'hovered': hoveredField === Object.keys(dayObj)[0] }">
+              :class="{ 'hovered': hoveredField === Object.keys(dayObj)[0] }" @dblclick="addNewEvent(Object.keys(dayObj)[0])">
               <span class="calendar-day-select"
                 :class="{ 'current-day': isCurrentDay(Object.keys(dayObj)[0]), 'not-current-month': isNotInputMonth(Object.keys(dayObj)[0]) }"
                 @click="handleSelectDate(Object.keys(dayObj)[0])">{{
@@ -60,8 +60,8 @@
       </tbody>
     </table>
   </div>
-  <el-dialog v-model="showEventDialog" :modal=false>
-    <add-event-info :eventinfoid="showEventId"></add-event-info>
+  <el-dialog v-model="showEventDialog" :modal=false class="event-dialog" width="40%" >
+    <add-event-info :eventinfoid="showEventId" :key="dialogKey"></add-event-info>
   </el-dialog>
 </template>
   
@@ -69,6 +69,7 @@
 import { ElButton, ElPopover, ElDialog } from 'element-plus';
 import SvgIcon from '@jamescoyle/vue-icon';
 import { mdiChevronLeft, mdiChevronRight } from '@mdi/js';
+import { v4 as uuidv4 } from 'uuid';
 
 import { useCalendarStore } from '../stores/store.js';
 import { toRefs } from 'vue';
@@ -110,7 +111,7 @@ export default {
       mdiChevronRight_path: mdiChevronRight,
       draggedItem: null,
       hoveredField: null,
-
+      dialogKey: 0,
     };
   },
   mounted() {
@@ -231,24 +232,45 @@ export default {
       }
     },
     handleOpenEventDialog(eventinfo) {
-      this.showEventDialog = true;
       this.showEventId = eventinfo.id;
-      console.log("Handle open event dialog");
+      console.log(this.showEventId);
+      this.showEventDialog = true;
+      this.dialogKey++;
     },
+    addNewEvent(date){
+      const offset = new Date(date).getTimezoneOffset();
+      const tempdate = new Date(new Date(date).getTime() - (offset * 60 * 1000));
+      const formattedDate = tempdate.toISOString().split('T')[0];
+      console.log(formattedDate);
+      this.events.push({
+        id: uuidv4(), 
+        time: '',
+        starttime: '',
+        endtime: '',
+        date: formattedDate,
+        name: "New Event",
+        remark: '',
+        category: '',
+      });
+    }
 
 
-  }
+  },
 };
 </script>
   
 <style>
-@import '../assets/css/el-element-modify.css';
-
 table {
   width: 80%;
   border-collapse: collapse;
   color: var(--primary-font-color-2);
 
+}
+
+.event-dialog {
+  background: var(--primary-background-color-1);
+  border-radius: 25px;
+  /* box-shadow: none; */
 }
 
 .monthlyCalendarLarge th {
