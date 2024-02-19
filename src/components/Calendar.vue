@@ -115,7 +115,7 @@ export default {
     };
   },
   mounted() {
-    console.log(this.events);
+    // console.log(this.events);
   },
   computed: {
     year() {
@@ -156,7 +156,7 @@ export default {
         }
         calendarData.push(week);
       }
-      console.log(calendarData);
+      // console.log(calendarData);
 
       return calendarData;
     },
@@ -233,7 +233,6 @@ export default {
     },
     handleOpenEventDialog(eventinfo) {
       this.showEventId = eventinfo.id;
-      console.log(this.showEventId);
       this.showEventDialog = true;
       this.dialogKey++;
     },
@@ -241,7 +240,6 @@ export default {
       const offset = new Date(date).getTimezoneOffset();
       const tempdate = new Date(new Date(date).getTime() - (offset * 60 * 1000));
       const formattedDate = tempdate.toISOString().split('T')[0];
-      console.log(formattedDate);
       this.events.push({
         id: uuidv4(), 
         time: '',
@@ -251,6 +249,7 @@ export default {
         name: "New Event",
         remark: '',
         category: '',
+        allDay: true,
       });
     }
 
@@ -270,7 +269,12 @@ table {
 .event-dialog {
   background: var(--primary-background-color-1);
   border-radius: 25px;
+  padding: 0px 10px;
   /* box-shadow: none; */
+}
+
+.el-dialog__body {
+  padding: 0 !important; 
 }
 
 .monthlyCalendarLarge th {

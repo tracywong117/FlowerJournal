@@ -118,7 +118,7 @@ export default {
         }
         calendarData.push(week);
       }
-      console.log(calendarData);
+      // console.log(calendarData);
 
       return calendarData;
     }

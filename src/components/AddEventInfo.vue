@@ -1,5 +1,8 @@
 <template>
   <div style="padding: 20px;">
+    <div style="display: flex; align-items: center; justify-content: end;">
+      <span style="padding: 10px;">All Day</span><el-switch v-model="allDay" style="--el-switch-on-color: #dda8cd; "></el-switch>
+    </div>
     <div
       style="display: flex; align-items: center; padding-bottom: 5px; justify-content: space-between; padding-bottom: 10px;">
       <div style="color: var(--primary-font-color-2);" class="text-hover">
@@ -15,35 +18,31 @@
         </el-popover>
 
       </div>
-      <div style="display: flex; align-items: center;">
+      <div v-if="!eventinfo.allDay" style="display: flex; align-items: center;">
         <svg-icon type="mdi" :path="mdiClockTimeFourOutlinePath" width="20" height="20"></svg-icon>
-        <!-- <div class="text-hover">
-          <el-popover popper-style="border:  1px solid #c1b5ce;" placement="bottom-start" width="200" trigger="click"
-            :show-arrow="false">
-            <template #reference>
-              <span v-if="eventinfo.starttime != ''" style="padding:0 1px; color: var(--primary-font-color-2); ">{{
-                eventinfo.starttime }}</span>
-              <span v-else style="margin: 0 20px;"></span>
-            </template>
-            <div style="display: flex; justify-content: center; align-items: center;" v-if="eventinfo.starttime != ''">
-              <time-picker v-model="eventinfo.starttime"></time-picker>
-            </div>
-          </el-popover>
-        </div> -->
-        <span>:</span>
-        <!-- <div class="text-hover">
-          <el-popover popper-style="border:  1px solid #c1b5ce;" placement="bottom-start" width="200" trigger="click"
-            :show-arrow="false">
-            <template #reference>
-              <span v-if="eventinfo.endtime != ''" style="padding:0 1px; color: var(--primary-font-color-2); ">{{
-                eventinfo.endtime }}</span>
-              <span v-else style="margin: 0 20px;"></span>
-            </template>
-            <div style="display: flex; justify-content: center; align-items: center;" v-if="eventinfo.starttime != ''">
-              <time-picker v-model="eventinfo.endtime"></time-picker>
-            </div>
-          </el-popover>
-        </div> -->
+          <div class="text-hover">
+            <el-popover popper-style="border: 1px solid #c1b5ce;" placement="bottom-start" width="200" trigger="click"
+              :show-arrow="false">
+              <template #reference>
+                <span style="padding:0 1px; color: var(--primary-font-color-2); ">{{ eventinfo.starttime }}</span>
+              </template>
+              <div style="display: flex; justify-content: center; align-items: center;">
+                <time-picker v-model="eventinfo.starttime"></time-picker>
+              </div>
+            </el-popover>
+          </div>
+          <span>:</span>
+          <div class="text-hover">
+            <el-popover popper-style="border:  1px solid #c1b5ce;" placement="bottom-start" width="200" trigger="click"
+              :show-arrow="false">
+              <template #reference>
+                <span style="padding:0 1px; color: var(--primary-font-color-2); ">{{ eventinfo.endtime }}</span>
+              </template>
+              <div style="display: flex; justify-content: center; align-items: center;">
+                <time-picker v-model="eventinfo.endtime"></time-picker>
+              </div>
+            </el-popover>
+          </div>
       </div>
     </div>
     <input ref="input" type="text" v-model="eventinfo.name" />
@@ -51,7 +50,7 @@
       <RichtextEditor v-model="eventinfo.remark"></RichtextEditor>
     </div>
     <el-button plain color="rgb(139, 92, 246)" style="width: 80px;" @click="handleDone">Done</el-button>
-    <el-button plain color="rgb(189, 101, 166)" style="width: 80px;">Delete</el-button>
+    <el-button plain color="rgb(189, 101, 166)" style="width: 80px;" @click="handleDelete">Delete</el-button>
   </div>
 </template>
 
@@ -59,7 +58,7 @@
 import { useCalendarStore } from '../stores/store.js';
 import { toRefs } from 'vue';
 
-import { ElButton, ElPopover } from 'element-plus';
+import { ElButton, ElPopover, ElSwitch } from 'element-plus';
 
 import SvgIcon from '@jamescoyle/vue-icon';
 import { mdiCalendar, mdiClockTimeFourOutline } from '@mdi/js';
@@ -85,6 +84,7 @@ export default {
     SmallCalendar,
     ElPopover,
     TimePicker,
+    ElSwitch,
 
   },
   props: {
@@ -96,20 +96,20 @@ export default {
   data() {
     return {
       eventinfo: {
-        // date: '',
-        // remark: '',
+
       },
       mdiCalendarPath: mdiCalendar,
       mdiClockTimeFourOutlinePath: mdiClockTimeFourOutline,
       smallCalendarVisiible: false,
-
+      allDay: false,
     };
   },
   mounted() {
+    console.log(this.eventinfoid);
     this.eventinfo = this.events.find(event => event.id === this.eventinfoid) || {};
     console.log(this.eventinfo);
     this.dateToConfirm = this.eventinfo.date;
-
+    this.allDay = this.eventinfo.allDay;
   },
   methods: {
     autoHeight() {
@@ -127,6 +127,21 @@ export default {
       setTimeout(() => {
         this.eventinfo.date = this.dateToConfirm;
       }, 100);
+    },
+    handleDelete() {
+      this.showEventDialog = false;
+      this.events = this.events.filter(event => event.id !== this.eventinfoid);
+    },
+  },
+  watch: {
+    allDay(newValue) {
+      this.eventinfo.allDay = newValue;
+      if (this.eventinfo.starttime == '') {
+        this.eventinfo.starttime = '0:00 AM';
+      }
+      if (this.eventinfo.endtime == '') {
+        this.eventinfo.endtime = '0:00 AM';
+      }
     },
   },
   computed: {

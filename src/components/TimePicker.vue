@@ -38,9 +38,13 @@ export default {
     };
   },
   mounted() {
-    if (this.modelValue != ''){
+    if (this.modelValue){
       this.parseModelValue();
-      
+    }
+  },
+  watch: {
+    modelValue(newValue) {
+      this.parseModelValue();
     }
   },
   methods: {
@@ -95,17 +99,24 @@ export default {
       this.$emit('update:modelValue', timeString);
     },
     parseModelValue() {
-      const parts = this.modelValue.split(':');
-      if (parts.length === 2) {
-        const hour = parseInt(parts[0], 10);
-        const minute = parseInt(parts[1].split(' ')[0], 10);
-        const isAM = parts[1].includes('AM');
-        if (!isNaN(hour) && !isNaN(minute) && hour >= 0 && hour <= 12 && minute >= 0 && minute <= 59) {
-          this.hour = hour;
-          this.minute = minute;
-          this.isAM = isAM;
+      // try {
+        const parts = this.modelValue.split(':');
+        if (parts.length === 2) {
+          const hour = parseInt(parts[0], 10);
+          const minute = parseInt(parts[1].split(' ')[0], 10);
+          const isAM = parts[1].includes('AM');
+          console.log("Parsing")
+          console.log(hour, minute, isAM);
+          if (!isNaN(hour) && !isNaN(minute) && hour >= 0 && hour <= 12 && minute >= 0 && minute <= 59) {
+            this.hour = hour;
+            this.minute = minute;
+            this.isAM = isAM;
+          }
         }
-      }
+      // } catch (error) {
+      //   console.error('Error parsing time:', error);
+      // }
+
     },
     selectAllText(input) {
       input.select();

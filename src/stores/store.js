@@ -13,6 +13,7 @@ export const useCalendarStore = defineStore('calendar', {
         name: 'Meeting',
         remark: '',
         category: '',
+        allDay: false,
       },
       {
         id: 2, 
@@ -23,6 +24,7 @@ export const useCalendarStore = defineStore('calendar', {
         name: 'Workshop',
         remark: '<h1>This is header h1.</h1> <h2>This is header h2.</h2>',
         category: '',
+        allDay: false,
       },
       {
         id: 3, 
@@ -33,6 +35,7 @@ export const useCalendarStore = defineStore('calendar', {
         name: 'Workshop',
         remark: '<h1>This is header h1.</h1> <h2>This is header h2.</h2>',
         category: '',
+        allDay: true,
       },
       {
         id: 4, 
@@ -43,6 +46,7 @@ export const useCalendarStore = defineStore('calendar', {
         name: 'Leisure',
         remark: '<h1>This is header h1.</h1> <h2>This is header h2.</h2>',
         category: '',
+        allDay: true,
       },
     ],
     showEventDialog: false,
