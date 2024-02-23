@@ -1,7 +1,8 @@
 <template>
   <div style="padding: 20px;">
     <div style="display: flex; align-items: center; justify-content: end;">
-      <span style="padding: 10px;">All Day</span><el-switch v-model="allDay" style="--el-switch-on-color: #dda8cd; "></el-switch>
+      <span style="padding: 10px;">All Day</span><el-switch v-model="allDay"
+        style="--el-switch-on-color: #dda8cd; "></el-switch>
     </div>
     <div
       style="display: flex; align-items: center; padding-bottom: 5px; justify-content: space-between; padding-bottom: 10px;">
@@ -20,29 +21,29 @@
       </div>
       <div v-if="!eventinfo.allDay" style="display: flex; align-items: center;">
         <svg-icon type="mdi" :path="mdiClockTimeFourOutlinePath" width="20" height="20"></svg-icon>
-          <div class="text-hover">
-            <el-popover popper-style="border: 1px solid #c1b5ce;" placement="bottom-start" width="200" trigger="click"
-              :show-arrow="false">
-              <template #reference>
-                <span style="padding:0 1px; color: var(--primary-font-color-2); ">{{ eventinfo.starttime }}</span>
-              </template>
-              <div style="display: flex; justify-content: center; align-items: center;">
-                <time-picker v-model="eventinfo.starttime"></time-picker>
-              </div>
-            </el-popover>
-          </div>
-          <span>:</span>
-          <div class="text-hover">
-            <el-popover popper-style="border:  1px solid #c1b5ce;" placement="bottom-start" width="200" trigger="click"
-              :show-arrow="false">
-              <template #reference>
-                <span style="padding:0 1px; color: var(--primary-font-color-2); ">{{ eventinfo.endtime }}</span>
-              </template>
-              <div style="display: flex; justify-content: center; align-items: center;">
-                <time-picker v-model="eventinfo.endtime"></time-picker>
-              </div>
-            </el-popover>
-          </div>
+        <div class="text-hover">
+          <el-popover popper-style="border: 1px solid #c1b5ce;" placement="bottom-start" width="200" trigger="click"
+            :show-arrow="false">
+            <template #reference>
+              <span style="padding:0 1px; color: var(--primary-font-color-2); ">{{ eventinfo.starttime }}</span>
+            </template>
+            <div style="display: flex; justify-content: center; align-items: center;">
+              <time-picker v-model="eventinfo.starttime"></time-picker>
+            </div>
+          </el-popover>
+        </div>
+        <span>:</span>
+        <div class="text-hover">
+          <el-popover popper-style="border:  1px solid #c1b5ce;" placement="bottom-start" width="200" trigger="click"
+            :show-arrow="false">
+            <template #reference>
+              <span style="padding:0 1px; color: var(--primary-font-color-2); ">{{ eventinfo.endtime }}</span>
+            </template>
+            <div style="display: flex; justify-content: center; align-items: center;">
+              <time-picker v-model="eventinfo.endtime"></time-picker>
+            </div>
+          </el-popover>
+        </div>
       </div>
     </div>
     <input ref="input" type="text" v-model="eventinfo.name" />
@@ -75,6 +76,7 @@ export default {
 
     return {
       ...calendarState,
+      saveEventData: calendarStore.saveEventData,
     };
   },
   components: {
@@ -105,18 +107,12 @@ export default {
     };
   },
   mounted() {
-    console.log(this.eventinfoid);
     this.eventinfo = this.events.find(event => event.id === this.eventinfoid) || {};
     console.log(this.eventinfo);
     this.dateToConfirm = this.eventinfo.date;
     this.allDay = this.eventinfo.allDay;
   },
   methods: {
-    autoHeight() {
-      const textarea = this.$refs.textarea;
-      textarea.style.height = '';
-      textarea.style.height = `${textarea.scrollHeight}px`;
-    },
     formatDate(date) {
       const options = { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' };
       const formatted = new Date(date).toLocaleDateString(undefined, options);
@@ -127,10 +123,12 @@ export default {
       setTimeout(() => {
         this.eventinfo.date = this.dateToConfirm;
       }, 100);
+      this.saveEventData();
     },
     handleDelete() {
       this.showEventDialog = false;
       this.events = this.events.filter(event => event.id !== this.eventinfoid);
+      this.saveEventData();
     },
   },
   watch: {
@@ -143,11 +141,19 @@ export default {
         this.eventinfo.endtime = '0:00 AM';
       }
     },
+    eventinfo(newValue) {
+      // Question: why this.events is updated??
+      // It is the right behavior, but I don't understand why it is happening.
+      // I think I should update this.events when this.eventinfo is changed (However I didn't write this code)
+
+      // const tryIfUpdatedInEvents = this.events.find(event => event.id === this.eventinfoid) || {} ;
+      // console.log(tryIfUpdatedInEvents == this.eventinfo);
+      this.saveEventData();
+    }
   },
   computed: {
     formattedDate() {
       if (this.eventinfo && this.eventinfo.date) {
-        // return this.formatDate(this.eventinfo.date);
         return this.formatDate(this.dateToConfirm)
       }
       return '';

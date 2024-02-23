@@ -60,7 +60,7 @@
       </tbody>
     </table>
   </div>
-  <el-dialog v-model="showEventDialog" :modal=false class="event-dialog" width="40%" >
+  <el-dialog v-model="showEventDialog" :modal=false class="event-dialog" width="40%" :show-close=false>
     <add-event-info :eventinfoid="showEventId" :key="dialogKey"></add-event-info>
   </el-dialog>
 </template>
@@ -94,7 +94,8 @@ export default {
 
     return {
       ...calendarState,
-      getEventsForDate
+      getEventsForDate,
+      saveEventData: calendarStore.saveEventData,
     };
   },
   components: {
@@ -176,7 +177,7 @@ export default {
       return inputMonth != selectedMonth;
     },
     handleSelectDate(date) {
-      console.log(date);
+      // console.log(date);
     },
     prevMonth() {
       const currentDate = this.dt;
@@ -222,15 +223,6 @@ export default {
         this.hoveredField = null;
       }
     },
-    updateEvent(updatedEvent) {
-      // Find the index of the event in the events array
-      console.log(updatedEvent);
-      const index = this.events.findIndex(event => event.id === updatedEvent.id);
-      if (index !== -1) {
-        // Update the event with the updated information
-        this.events.splice(index, 1, updatedEvent);
-      }
-    },
     handleOpenEventDialog(eventinfo) {
       this.showEventId = eventinfo.id;
       this.showEventDialog = true;
@@ -251,6 +243,7 @@ export default {
         category: '',
         allDay: true,
       });
+      this.saveEventData();
     }
 
 
@@ -275,6 +268,11 @@ table {
 
 .el-dialog__body {
   padding: 0 !important; 
+}
+
+.el-dialog__header {
+  padding: 12px !important;
+  padding-bottom: 0px !important;
 }
 
 .monthlyCalendarLarge th {

@@ -4,7 +4,38 @@
 </template>
 
 <script>
+import { useCalendarStore } from './stores/store.js';
+import { toRefs } from 'vue';
 
+export default {
+  setup() {
+    const calendarStore = useCalendarStore();
+
+    const calendarState = toRefs(calendarStore);
+
+    const getEventsForDate = (date) => {
+      return calendarState.events.value.filter((eventinfo) => {
+        const eventDate = new Date(eventinfo.date);
+        const providedDate = new Date(date);
+
+        return eventDate.toLocaleDateString() === providedDate.toLocaleDateString();
+      });
+    };
+
+    return {
+      ...calendarState,
+      getEventsForDate,
+      saveEventData: calendarStore.saveEventData,
+      loadEventData: calendarStore.loadEventData,
+    };
+  },
+  mounted() {
+    this.loadEventData();
+  },
+  beforeUnmount() {
+    window.removeEventListener('beforeunload', this.saveEventData);
+  },
+}
 
 </script>
 

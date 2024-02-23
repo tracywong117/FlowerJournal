@@ -120,6 +120,22 @@ import {
   mdiFileCodeOutline, mdiArrowULeftTop, mdiArrowURightTop
 } from '@mdi/js';
 
+import { CodeBlockLowlight } from '@tiptap/extension-code-block-lowlight';
+import { common, createLowlight } from 'lowlight';
+
+
+// import css from 'highlight.js/lib/languages/css.js'
+// import js from 'highlight.js/lib/languages/javascript.js'
+// import ts from 'highlight.js/lib/languages/typescript.js'
+// import html from 'highlight.js/lib/languages/xml.js'
+
+// import { lowlight } from 'lowlight';
+
+// lowlight.registerLanguage('html', html)
+// lowlight.registerLanguage('css', css)
+// lowlight.registerLanguage('js', js)
+// lowlight.registerLanguage('ts', ts)
+
 export default {
   components: {
     EditorContent,
@@ -164,7 +180,9 @@ export default {
     // console.log("modelvalue", this.modelValue);
     this.editor = new Editor({
       extensions: [
-        StarterKit,
+        StarterKit.configure({
+          codeBlock: false
+        }),
         TaskList,
         TaskItem.configure({
           nested: true,
@@ -172,6 +190,12 @@ export default {
         Placeholder.configure({
           placeholder: 'Write something …',
         }),
+        CodeBlockLowlight.configure({
+          lowlight: createLowlight(common)
+        }),
+        // CodeBlockLowlight.configure({
+        //   lowlight,
+        // }),
       ],
       content: this.modelValue,
       onUpdate: ({ editor }) => {
@@ -194,6 +218,8 @@ export default {
 </script>
   
 <style lang="scss">
+@import "../assets/css/dracula.css";
+
 .ProseMirror:focus {
   outline: none;
 }
@@ -225,6 +251,7 @@ button.is-active {
 .tiptap {
   color: #0D0D0D;
   font-size: 16px;
+  line-height: 1rem;
 
   >*+* {
     margin-top: 0.75em;
@@ -238,9 +265,24 @@ button.is-active {
     height: 0;
   }
 
+  ul li {
+    list-style: none;
+  }
+
+  ul li:before {
+    content: "";
+    position: absolute;
+    left: 16px;
+    background: #bdbecc;
+    margin-top: 8px;
+    height: 6px;
+    width: 6px;
+    border-radius: 50%;
+  }
+
   ul[data-type="taskList"] {
     list-style: none;
-    padding-inline-start: 10px;
+    padding-left: 10px;
 
     p {
       margin: 0;
@@ -264,8 +306,6 @@ button.is-active {
         appearance: none;
       }
 
-
-
       >div {
         flex: 1 1 auto;
       }
@@ -280,6 +320,11 @@ button.is-active {
 
       }
     }
+
+    li:before {
+      content: none;
+    }
+
   }
 
   h1,
@@ -292,19 +337,18 @@ button.is-active {
   }
 
   h1 {
-    // background-color: rgb(254, 250, 255);
-    color: rgb(0, 0, 0);
+    color: rgb(159 121 156);
   }
 
 
   h2 {
-    // background-color: rgb(250, 253, 255);
-    color: rgb(0, 0, 0);
+    color: rgb(178 173 206)
   }
 
   strong {
     font-weight: 700;
-    background-color: var(--primary-light-sharp-color-1);
+    background-color: rgb(218, 203, 235);
+    color:#951474
   }
 
   code {
@@ -313,7 +357,7 @@ button.is-active {
   }
 
   pre {
-    background: #0D0D0D;
+    background: rgb(35, 47, 47);
     color: #FFF;
     font-family: 'JetBrainsMono', monospace;
     padding: 0.75rem 1rem;
@@ -325,6 +369,10 @@ button.is-active {
       background: none;
       font-size: 0.8rem;
     }
+  }
+
+  p {
+    line-height: 1.5rem;
   }
 
   img {
