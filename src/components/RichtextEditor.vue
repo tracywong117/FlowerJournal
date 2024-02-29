@@ -123,19 +123,6 @@ import {
 import { CodeBlockLowlight } from '@tiptap/extension-code-block-lowlight';
 import { common, createLowlight } from 'lowlight';
 
-
-// import css from 'highlight.js/lib/languages/css.js'
-// import js from 'highlight.js/lib/languages/javascript.js'
-// import ts from 'highlight.js/lib/languages/typescript.js'
-// import html from 'highlight.js/lib/languages/xml.js'
-
-// import { lowlight } from 'lowlight';
-
-// lowlight.registerLanguage('html', html)
-// lowlight.registerLanguage('css', css)
-// lowlight.registerLanguage('js', js)
-// lowlight.registerLanguage('ts', ts)
-
 export default {
   components: {
     EditorContent,
@@ -183,6 +170,8 @@ export default {
         StarterKit.configure({
           codeBlock: false
         }),
+        // BulletList, 
+        // ListItem,
         TaskList,
         TaskItem.configure({
           nested: true,
@@ -193,9 +182,6 @@ export default {
         CodeBlockLowlight.configure({
           lowlight: createLowlight(common)
         }),
-        // CodeBlockLowlight.configure({
-        //   lowlight,
-        // }),
       ],
       content: this.modelValue,
       onUpdate: ({ editor }) => {

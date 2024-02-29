@@ -1,37 +1,42 @@
 <template>
-  <div style="display: flex; justify-content: center; align-items: center; flex-direction: column;">
+  <div style="display: flex; justify-content: center; align-items: center; flex-direction: column;" class="unselectable">
     <div style="display: flex; justify-content: center; align-items: center;">
       <el-button plain color="rgb(139, 92, 246)" style="margin: 0 100px 0 0;" @click="prevMonth">
         <SvgIcon type="mdi" :path="mdiChevronLeft_path"></SvgIcon>
       </el-button>
-      <p style="text-align: center; background: var(--lin-grad-primary-1); -webkit-background-clip: text;
+      <p class="unselectable" style="text-align: center; background: var(--lin-grad-primary-1); -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;">{{ month }} {{ year }}</p>
       <el-button plain color="rgb(189, 101, 166)" style="margin: 0 0 0 100px;" @click="nextMonth">
         <SvgIcon type="mdi" :path="mdiChevronRight_path"></SvgIcon>
       </el-button>
     </div>
-    <table class="monthlyCalendarLarge">
-      <thead>
+    <table class="monthlyCalendarLarge unselectable">
+      <thead class="unselectable">
         <tr>
-          <th v-for="day in daysOfWeek" style="color: var(--primary-font-color-1); font-size: 14px;">{{ day }}</th>
+          <th v-for="day in weekDayLabels" class="unselectable" style="color: var(--primary-font-color-1); font-size: 14px;">
+            {{ day }}</th>
         </tr>
       </thead>
-      <tbody style="vertical-align: baseline;">
-        <tr v-for="week in calendarData">
-          <td v-for="dayObj in week">
+      <tbody style="vertical-align: baseline;" class="unselectable">
+        <tr v-for="week in calendarData" class="unselectable">
+          <td v-for="dayObj in week" class="unselectable">
             <div @dragover="allowDrop" @dragenter="dragEnter(Object.keys(dayObj)[0])" @drop="drop(Object.keys(dayObj)[0])"
-              :class="{ 'hovered': hoveredField === Object.keys(dayObj)[0] }" @dblclick="addNewEvent(Object.keys(dayObj)[0])">
+              :class="{ 'hovered': hoveredField === Object.keys(dayObj)[0] }" style="height: 15vh;"
+              @dblclick="addNewEvent(Object.keys(dayObj)[0])">
               <span class="calendar-day-select"
                 :class="{ 'current-day': isCurrentDay(Object.keys(dayObj)[0]), 'not-current-month': isNotInputMonth(Object.keys(dayObj)[0]) }"
                 @click="handleSelectDate(Object.keys(dayObj)[0])">{{
-                  Object.values(dayObj)[0] }}</span><br>
+                  Object.values(dayObj)[0] }}</span>
               <div v-for="eventinfo in getEventsForDate(Object.keys(dayObj)[0]).slice(0, 2)  " :draggable="true"
-                @dragstart="startDrag(eventinfo, $event)" :style="{
+                @dragstart="startDrag(eventinfo, $event);"
+                @dragend="draggedItem = null" :style="{
                   'opacity': eventinfo === draggedItem ? '0.5' : '1',
-                  'transition': 'opacity 0.3s'
+                  'transition': 'opacity 0.3s',
+
                 }">
 
-                <span class="eventinfo-container background-highlight-1" @click="handleOpenEventDialog(eventinfo)">
+                <span class="eventinfo-container background-highlight-1 " :style="{
+                }" @click="handleOpenEventDialog(eventinfo)">
                   {{ eventinfo.name }}
                 </span>
 
@@ -113,10 +118,8 @@ export default {
       draggedItem: null,
       hoveredField: null,
       dialogKey: 0,
+      // dragging: false
     };
-  },
-  mounted() {
-    // console.log(this.events);
   },
   computed: {
     year() {
@@ -126,7 +129,7 @@ export default {
       const options = { month: 'long' };
       return this.dt.toLocaleString('en-US', options);
     },
-    daysOfWeek() {
+    weekDayLabels() {
       return ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
     },
     calendarData() {
@@ -157,41 +160,43 @@ export default {
         }
         calendarData.push(week);
       }
-      // console.log(calendarData);
 
       return calendarData;
     },
 
   },
   methods: {
+    // Check if the day is today
     isCurrentDay(day) {
-      const currentDay = new Date().getDate();
-      const selectedDay = new Date(day).getDate();
+      const today = new Date().getDate();
       const currentMonth = new Date().getMonth();
-      const selectedMonth = new Date(day).getMonth();
-      return currentDay == selectedDay && currentMonth == selectedMonth;
+      return today == new Date(day).getDate() && currentMonth == new Date(day).getMonth();
     },
+    // Check if the day is not the input month
     isNotInputMonth(day) {
       const inputMonth = new Date(this.dt).getMonth();
-      const selectedMonth = new Date(day).getMonth();
-      return inputMonth != selectedMonth;
+      return inputMonth != new Date(day).getMonth();
     },
+    // handle click the date on calendar
     handleSelectDate(date) {
       // console.log(date);
     },
+    // go to the previous month
     prevMonth() {
       const currentDate = this.dt;
       const prevMonthDate = new Date(currentDate.getFullYear(), currentDate.getMonth() - 1, currentDate.getDate());
       this.dt = prevMonthDate;
     },
+    // go to the next month
     nextMonth() {
       const currentDate = this.dt;
       const nextMonthDate = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, currentDate.getDate());
       this.dt = nextMonthDate;
     },
     startDrag(eventinfo, event) {
+      // TODO: change the cursor to move during dragging
+      // this.dragging = true;
       this.draggedItem = eventinfo;
-      console.log(this.draggedItem);
       event.dataTransfer.effectAllowed = "move";
       event.dataTransfer.setData("text/plain", ""); // Necessary for Firefox
     },
@@ -204,6 +209,7 @@ export default {
         this.hoveredField = newIndex;
       }
     },
+    // drop the dragged item
     drop(newIndex) {
       if (this.draggedItem) {
         if (this.draggedItem.index !== newIndex) {
@@ -223,17 +229,19 @@ export default {
         this.hoveredField = null;
       }
     },
+    // open the event dialog
     handleOpenEventDialog(eventinfo) {
       this.showEventId = eventinfo.id;
       this.showEventDialog = true;
       this.dialogKey++;
     },
-    addNewEvent(date){
+    // add new event
+    addNewEvent(date) {
       const offset = new Date(date).getTimezoneOffset();
       const tempdate = new Date(new Date(date).getTime() - (offset * 60 * 1000));
       const formattedDate = tempdate.toISOString().split('T')[0];
       this.events.push({
-        id: uuidv4(), 
+        id: uuidv4(),
         time: '',
         starttime: '',
         endtime: '',
@@ -244,7 +252,7 @@ export default {
         allDay: true,
       });
       this.saveEventData();
-    }
+    },
 
 
   },
@@ -252,6 +260,14 @@ export default {
 </script>
   
 <style>
+.unselectable {
+  user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
 table {
   width: 80%;
   border-collapse: collapse;
@@ -267,7 +283,7 @@ table {
 }
 
 .el-dialog__body {
-  padding: 0 !important; 
+  padding: 0 !important;
 }
 
 .el-dialog__header {
@@ -353,5 +369,15 @@ table {
   padding: 0 10px;
   margin: 2px;
   cursor: pointer;
+}
+
+/* not work */
+/* .drag-cursor {
+  cursor: move;
+  pointer-events: all;
+} */
+
+.hovered {
+  background-color: rgb(233, 244, 248);
 }
 </style>

@@ -1,0 +1,170 @@
+<template>
+  <p style="text-align: center; background: var(--lin-grad-primary-1); -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;">{{ month }} </p>
+  <table class="monthlyCalendarSmall">
+    <thead>
+      <tr>
+        <th v-for="day in daysOfWeek" style="color: var(--primary-font-color-1); font-size: 14px;">{{ day }}</th>
+      </tr>
+    </thead>
+    <tbody style="vertical-align: baseline;">
+      <tr v-for="(week, index) in calendarData">
+        <td v-for="dayObj in week">
+          <div>
+            <span class="calendar-day-select"
+              :class="{ 'current-day': isDateCurrentSelected(Object.keys(dayObj)[0]), 'not-current-month': isNotMonthBrowsing(Object.keys(dayObj)[0]) }"
+              @click="handleSelectDate(Object.keys(dayObj)[0])">{{
+                Object.values(dayObj)[0] }}</span><br>
+          </div>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</template>
+      
+<script>
+
+export default {
+  components: {
+
+  },
+  props: {
+    month: {
+      type: String,
+      required: true
+    }
+  },
+  data() {
+    return {
+      monthBrowsing: '',
+      currentSelected: '',
+    };
+  },
+  mounted() {
+    this.monthBrowsing = this.month;
+  },
+  computed: {
+    year() {
+      return new Date(this.monthBrowsing).getFullYear();
+    },
+    month() {
+      const options = { month: 'long' };
+      return new Date(this.monthBrowsing).toLocaleString('en-US', options);
+    },
+    daysOfWeek() {
+      return ["S", "M", "T", "W", "T", "F", "S"];
+    },
+    calendarData() {
+      const date = new Date(this.monthBrowsing);
+      const firstDay = new Date(date.getFullYear(), date.getMonth(), 1);
+      const lastDay = new Date(date.getFullYear(), date.getMonth() + 1, 0);
+
+      const startDate = new Date(firstDay);
+      startDate.setDate(firstDay.getDate() - firstDay.getDay());
+
+      const endDate = new Date(lastDay);
+      endDate.setDate(lastDay.getDate() + (6 - lastDay.getDay()));
+
+      const calendarData = [];
+      let date_temp = new Date(startDate);
+
+      var temp = {};
+
+      while (date_temp <= endDate) {
+        const week = [];
+        for (let i = 0; i < 7; i++) {
+          var dateObj = date_temp;
+          var day_of_month = date_temp.getDate();
+          temp = {};
+          temp[dateObj] = day_of_month;
+          week.push(temp);
+          date_temp.setDate(date_temp.getDate() + 1);
+        }
+        calendarData.push(week);
+      }
+      // console.log(calendarData);
+
+      return calendarData;
+    }
+  },
+  methods: {
+    isDateCurrentSelected(day) {
+      if (this.currentSelected != '') {
+        const currentDay = new Date(this.currentSelected).getDate();
+        const selectedDay = new Date(day).getDate();
+        const currentMonth = new Date(this.currentSelected).getMonth();
+        const selectedMonth = new Date(day).getMonth();
+        return currentDay == selectedDay && currentMonth == selectedMonth;
+      }
+    },
+    isNotMonthBrowsing(day) {
+      const inputMonth = new Date(this.monthBrowsing).getMonth();
+      const selectedMonth = new Date(day).getMonth();
+      return inputMonth != selectedMonth;
+    },
+    handleSelectDate(date) {
+      // console.log(date);
+      const offset = new Date(date).getTimezoneOffset();
+      const tempdate = new Date(new Date(date).getTime() - (offset * 60 * 1000));
+      const formattedDate = tempdate.toISOString().split('T')[0];
+      this.currentSelected = formattedDate;
+
+      this.$emit('update:month', this.currentSelected);
+    },
+  }
+};
+</script>
+      
+<style scoped>
+.monthlyCalendarSmall {
+  font-size: 10px;
+  width: 90%;
+  border-collapse: collapse;
+  color: var(--primary-font-color-2);
+
+}
+
+.monthlyCalendarSmall th,
+.monthlyCalendarSmall td {
+  text-align: center;
+  padding: 2px;
+  width: 14.285%;
+}
+
+.current-day {
+  background-color: var(--primary-light-sharp-color-2);
+  color: #fff;
+  border-radius: 100%;
+  display: inline-block;
+}
+
+.not-current-month {
+  /* background-color: aqua; */
+  color: var(--primary-pale-color-1);
+}
+
+.calendar-day-select {
+  display: inline-block;
+  width: 20px;
+  height: 20px;
+  border-radius: 100%;
+  text-align: center;
+  line-height: 20px;
+  font-size: 14px;
+}
+
+.calendar-day-select:hover {
+  cursor: pointer;
+  background-color: var(--primary-light-color-1);
+}
+
+.current-day:hover {
+  background-color: var(--primary-light-sharp-color-1);
+
+}
+
+.current-day:hover .calendar-day-select {
+  background-color: var(--primary-light-sharp-color-1);
+
+}
+</style>

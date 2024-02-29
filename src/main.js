@@ -7,7 +7,8 @@ import App from './App.vue'
 import Home from './views/Home.vue'
 import Trial from './views/Trial.vue'
 import Preview from './views/Preview.vue'
-
+import YearlyView from './views/YearlyView.vue'
+import WeeklyView from './views/WeeklyView.vue'
 
 const routes = [
   {
@@ -24,6 +25,21 @@ const routes = [
     path: '/preview',
     name: 'Preview',
     component: Preview,
+  },
+  {
+    path: '/year',
+    name: 'Year',
+    component: YearlyView,
+  },
+  {
+    path: '/week',
+    name: 'Week',
+    component: WeeklyView,
+  },
+  {
+    path: '/resizable',
+    name: 'Resizable',
+    component: () => import('./views/Resizable.vue'),
   }
 ]
 

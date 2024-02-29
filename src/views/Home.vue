@@ -17,7 +17,7 @@
 </template>
 
 <script>
-import Calendar from '../components/Calendar.vue';
+import Calendar from '../components/CalendarUseDiv.vue';
 import { ElRow, ElCol } from 'element-plus';
 
 export default {
