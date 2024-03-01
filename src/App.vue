@@ -43,6 +43,7 @@ export default {
 @import url('https://fonts.googleapis.com/css2?family=Poppins&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Playfair&display=swap');
 @import './assets/css/color.css';
+@import './assets/css/common.css';
 
 body{
   /* background-color: var(--paper-background); */

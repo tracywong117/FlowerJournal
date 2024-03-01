@@ -6,18 +6,32 @@
     </div>
     <div
       style="display: flex; align-items: center; padding-bottom: 5px; justify-content: space-between; padding-bottom: 10px;">
-      <div style="color: var(--primary-font-color-2);" class="text-hover">
-        <el-popover popper-style="border:  1px solid #c1b5ce;" placement="bottom-start" width="300" trigger="click"
-          :show-arrow="false">
-          <template #reference>
-            <div style="display: flex; align-items: center;">
-              <svg-icon type="mdi" :path="mdiCalendarPath" style="padding-right: 5px;" width="20" height="20"></svg-icon>
-              <span style="color: var(--primary-font-color-2);">{{ formattedDate }}</span>
-            </div>
-          </template>
-          <small-calendar v-if="eventinfo && eventinfo.date" v-model="dateToConfirm"></small-calendar>
-        </el-popover>
+      <div>
 
+        <div style="color: var(--primary-font-color-2);" class="text-hover">
+          <el-popover popper-style="border:  1px solid #c1b5ce;" placement="bottom-start" width="300" trigger="click"
+            :show-arrow="false">
+            <template #reference>
+              <div style="display: flex; align-items: center;">
+                <svg-icon type="mdi" :path="mdiCalendarPath" style="padding-right: 5px;" width="20" height="20"></svg-icon>
+                <span style="color: var(--primary-font-color-2);">{{ formattedDate }}</span>
+              </div>
+            </template>
+            <small-calendar v-if="eventinfo && eventinfo.date" v-model="dateToConfirm"></small-calendar>
+          </el-popover>
+        </div>
+        <div style="color: var(--primary-font-color-2);" class="text-hover">
+          <el-popover popper-style="border:  1px solid #c1b5ce;" placement="bottom-start" width="300" trigger="click"
+            :show-arrow="false">
+            <template #reference>
+              <div style="display: flex; align-items: center;">
+                <svg-icon type="mdi" :path="mdiCalendarPath" style="padding-right: 5px;" width="20" height="20"></svg-icon>
+                <span style="color: var(--primary-font-color-2);">{{ formattedEndDate }}</span>
+              </div>
+            </template>
+            <small-calendar v-if="eventinfo && eventinfo.endDate" v-model="endDateToConfirm"></small-calendar>
+          </el-popover>
+        </div>
       </div>
       <div v-if="!eventinfo.allDay" style="display: flex; align-items: center;">
         <svg-icon type="mdi" :path="mdiClockTimeFourOutlinePath" width="20" height="20"></svg-icon>
@@ -110,6 +124,7 @@ export default {
     this.eventinfo = this.events.find(event => event.id === this.eventinfoid) || {};
     console.log(this.eventinfo);
     this.dateToConfirm = this.eventinfo.date;
+    this.endDateToConfirm = this.eventinfo.endDate;
     this.allDay = this.eventinfo.allDay;
   },
   methods: {
@@ -122,6 +137,13 @@ export default {
       this.showEventDialog = false;
       setTimeout(() => {
         this.eventinfo.date = this.dateToConfirm;
+        this.eventinfo.endDate = this.endDateToConfirm;
+
+        if (this.eventinfo.endDate < this.eventinfo.date) {
+          const temp = this.eventinfo.date;
+          this.eventinfo.date = this.eventinfo.endDate;
+          this.eventinfo.endDate = temp;
+        }
       }, 100);
       this.saveEventData();
     },
@@ -155,6 +177,12 @@ export default {
     formattedDate() {
       if (this.eventinfo && this.eventinfo.date) {
         return this.formatDate(this.dateToConfirm)
+      }
+      return '';
+    },
+    formattedEndDate() {
+      if (this.eventinfo && this.eventinfo.endDate) {
+        return this.formatDate(this.endDateToConfirm)
       }
       return '';
     },

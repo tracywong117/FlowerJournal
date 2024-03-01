@@ -10,7 +10,7 @@
                     style="background-color: var(--primary-light-color-1); margin-top: 5px; padding-left: 10px; box-sizing: border-box; position: relative; border-radius: 5px; ">
                     <span class="unselectable">{{ div.text }}</span>
                     <div class="resizable-bar left" @mousedown="startLeftResize($event, div.id, div.row, div.col)"></div>
-                    <div class="resizable-bar right" @mousedown="startResize($event, div.id, div.row, div.col)"></div>
+                    <div class="resizable-bar right" @mousedown="startRightResize($event, div.id, div.row, div.col)"></div>
                 </div>
             </div>
         </div>
@@ -30,7 +30,7 @@ export default {
             ],
             resizingIndex: -1,
             updateLoc: null,
-            resizeFunction: null,
+            moveRightFunction: null,
             moveLeftFunction: null,
 
         }
@@ -43,19 +43,19 @@ export default {
             }
             return this.resizableDivs.filter(div => div.row === row && div.col === col);
         },
-        startResize(e, id, row, col) {
+        startRightResize(e, id, row, col) {
             e.preventDefault()
             this.resizingIndex = id
-            this.resizeFunction = event => this.resize(event, row, col)
-            document.addEventListener('mousemove', this.resizeFunction)
-            document.addEventListener('mouseup', event => this.stopResize(event))
+            this.moveRightFunction = event => this.moveRight(event, row, col)
+            document.addEventListener('mousemove', this.moveRightFunction)
+            document.addEventListener('mouseup', event => this.stopRightResize(event))
         },
-        resize(e, row, col) {
+        moveRight(e, row, col) {
             e.preventDefault()
             if (this.resizingIndex === -1) return // If no div is being resized, do nothing
 
             const div = document.getElementById('resizableDiv' + this.resizingIndex); 
-            const columnWidth = 200
+            const columnWidth = 100
             let maxColumn = 7 - col + 1
             let minWidth = columnWidth
             let maxWidth = maxColumn * columnWidth
@@ -72,15 +72,20 @@ export default {
                 width = maxWidth
             }
             
-            this.resizableDivs[this.resizingIndex].width = width - 20; 
+            this.resizableDivs[this.resizingIndex].width = width - 5; 
 
             let height = e.clientY - div.offsetHeight
             let nearestMultipleHeight = Math.round(height / 120)
             console.log(nearestMultipleHeight)
-
+            
             if (nearestMultipleHeight > 1) {
                 nearestMultipleHeight = 1
             }
+        },
+        stopRightResize() {
+            this.resizingIndex = -1
+            document.removeEventListener('mousemove', this.moveRightFunction)
+            document.removeEventListener('mouseup', this.stopRightResize)
         },
         startLeftResize(e, id, row, col) {
             e.preventDefault()
@@ -95,7 +100,7 @@ export default {
             if (this.resizingIndex === -1) return // If no div is being resized, do nothing
 
             const div = document.getElementById('resizableDiv' + this.resizingIndex); 
-            const columnWidth = 200
+            const columnWidth = 100
             let maxColumn = col - 1
 
             let width = e.clientX - div.offsetLeft
@@ -114,17 +119,11 @@ export default {
             this.resizableDivs[this.resizingIndex].col -= nearestMultiple;
             this.resizableDivs[this.resizingIndex].width += nearestMultiple * columnWidth; 
         },
-        stopResize() {
-            this.resizingIndex = -1
-            document.removeEventListener('mousemove', this.resizeFunction)
-            document.removeEventListener('mouseup', this.stopResize)
-        },
         stopLeftResize() {
             this.resizingIndex = -1
             document.removeEventListener('mousemove', this.moveLeftFunction)
             document.removeEventListener('mouseup', this.stopLeftResize)
         },
-
 
     },
 }

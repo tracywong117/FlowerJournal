@@ -11,35 +11,42 @@
             </el-button>
         </div>
 
-
+        <div class="seven-grid">
+            <div v-for="day in weekDayLabels" class="day-label unselectable"
+                style="color: var(--primary-font-color-1); font-size: 14px;">
+                {{ day }}
+            </div>
+        </div>
         <div class="monthlyCalendarLarge unselectable">
-            <div class="calendar-grid">
-                <div v-for="day in weekDayLabels" class="day-label unselectable"
-                    style="color: var(--primary-font-color-1); font-size: 14px;">
-                    {{ day }}
-                </div>
-                <div v-for="week in calendarData" class="week unselectable">
+            <div v-for="week in calendarData" class="week unselectable">
+                <div class="calendar-grid">
                     <div v-for="dayObj in week" class="day unselectable">
                         <div @dragover="allowDrop" @dragenter="dragEnter(Object.keys(dayObj)[0])"
                             @drop="drop(Object.keys(dayObj)[0])"
-                            :class="{ 'hovered': hoveredField === Object.keys(dayObj)[0] }" style="height: 15vh;"
+                            :class="{ 'hovered': hoveredField === Object.keys(dayObj)[0] }" style="height: 100%"
                             @dblclick="addNewEvent(Object.keys(dayObj)[0])">
                             <span class="calendar-day-select"
                                 :class="{ 'current-day': isCurrentDay(Object.keys(dayObj)[0]), 'not-current-month': isNotInputMonth(Object.keys(dayObj)[0]) }"
                                 @click="handleSelectDate(Object.keys(dayObj)[0])">{{
                                     Object.values(dayObj)[0] }}</span>
-                            <div v-for="eventinfo in getEventsForDate(Object.keys(dayObj)[0]).slice(0, 2)  "
-                                :draggable="true" @dragstart="startDrag(eventinfo, $event);" @dragend="draggedItem = null"
-                                :style="{
-                                    'opacity': eventinfo === draggedItem ? '0.5' : '1',
-                                    'transition': 'opacity 0.3s',
+                            <div v-for="eventinfo in getEventsForDate(Object.keys(dayObj)[0]).slice(0, 2)  " :style="{
+                                'opacity': eventinfo === draggedItem ? '0.5' : '1',
+                                'transition': 'opacity 0.3s',
+                                'width': getWidthFromDayNums(eventinfo.date, eventinfo.endDate) + '%',
+                            }" style="position: relative;">
 
-                                }">
-
-                                <span class="eventinfo-container background-highlight-1 " :style="{
-                                }" @click="handleOpenEventDialog(eventinfo)">
-                                    {{ eventinfo.name }}
-                                </span>
+                                <div :id="'resizableBar' + eventinfo.id"
+                                    class="eventinfo-container background-highlight-1 ellipsis-truncate" :draggable="true"
+                                    @dragstart="startDrag(eventinfo, $event);" @dragend="draggedItem = null" :style="{
+                                    }" @click="handleOpenEventDialog(eventinfo)">
+                                    <span>
+                                        {{ eventinfo.name }}
+                                    </span>
+                                </div>
+                                <div class="resizable-bar right" @mousedown="startRightResize($event, eventinfo)"></div>
+                                <!-- <div class="resizable-bar left"
+                                    @mousedown="startLeftResize($event, div.id, div.row, div.col)"
+                                    ></div> -->
 
                             </div>
 
@@ -120,6 +127,7 @@ export default {
             draggedItem: null,
             hoveredField: null,
             dialogKey: 0,
+            resizingObj: null,
             // dragging: false
         };
     },
@@ -165,9 +173,24 @@ export default {
 
             return calendarData;
         },
-
     },
     methods: {
+        DayNums(startDate, endDate) {
+            const start = new Date(startDate);
+            const end = new Date(endDate);
+
+            const diffInMs = end - start;
+            const diffInDays = diffInMs / (24 * 60 * 60 * 1000);
+
+            return Math.ceil(diffInDays); 
+        },
+        getWidthFromDayNums(startDate, endDate) {
+            // console.log(this.events);
+            // console.log(startDate);
+            const dayNums = this.DayNums(startDate, endDate);
+            console.log(dayNums);
+            return (dayNums+1) * 100;
+        },
         // Check if the day is today
         isCurrentDay(day) {
             const today = new Date().getDate();
@@ -223,8 +246,13 @@ export default {
                 const formattedDate = tempdate.toISOString().split('T')[0];
 
                 console.log(formattedDate);
-                this.draggedItem.date = formattedDate;
+                // calculate change in date
+                const changeInDate = new Date(tempdate).getDate() - new Date(this.draggedItem.date).getDate();
+                console.log(changeInDate);
 
+                this.draggedItem.date = formattedDate;
+                this.draggedItem.endDate = new Date(new Date(this.draggedItem.endDate).getTime() + (changeInDate * 24 * 60 * 60 * 1000)).toISOString().split('T')[0];
+                
                 console.log(this.events);
 
                 this.draggedItem = null;
@@ -248,12 +276,52 @@ export default {
                 starttime: '',
                 endtime: '',
                 date: formattedDate,
+                endDate: formattedDate,
                 name: "New Event",
                 remark: '',
                 category: '',
                 allDay: true,
             });
             this.saveEventData();
+        },
+        startRightResize(e, eventinfo) {
+            e.preventDefault()
+            this.resizingObj = eventinfo
+            this.moveRightFunction = event => this.moveRight(event, row, col)
+            document.addEventListener('mousemove', this.moveRightFunction)
+            document.addEventListener('mouseup', event => this.stopRightResize(event))
+        },
+        moveRight(e, eventinfo) {
+            e.preventDefault()
+            if (this.resizeingObj === null) return // If no div is being resized, do nothing
+
+            const span = document.getElementById('resizableBar' + this.resizingIndex);
+            const columnWidth = 100
+            let maxColumn = 7 - eventinfo.date.getDay() + 1 // getDay: sunday 0, monday 1, ...
+            let minWidth = columnWidth
+            let maxWidth = maxColumn * columnWidth
+
+            let width = e.clientX - span.offsetLeft
+            let nearestMultiple = Math.round(width / columnWidth)
+            // console.log(nearestMultiple)
+
+
+            width = nearestMultiple * columnWidth
+            if (width < minWidth) {
+                width = minWidth
+            } else if (width > maxWidth) {
+                width = maxWidth
+            }
+
+            // this.resizableDivs[this.resizingIndex].width = width - 5;
+
+            let height = e.clientY - span.offsetHeight
+            let nearestMultipleHeight = Math.round(height / 120)
+            console.log(nearestMultipleHeight)
+
+            if (nearestMultipleHeight > 1) {
+                nearestMultipleHeight = 1
+            }
         },
 
 
@@ -262,52 +330,6 @@ export default {
 </script>
     
 <style>
-.unselectable {
-    user-select: none;
-    -moz-user-select: none;
-    -ms-user-select: none;
-    -webkit-user-select: none;
-    user-select: none;
-}
-
-table {
-    width: 80%;
-    border-collapse: collapse;
-    color: var(--primary-font-color-2);
-
-}
-
-.event-dialog {
-    background: var(--primary-background-color-1);
-    border-radius: 25px;
-    padding: 0px 10px;
-    /* box-shadow: none; */
-}
-
-.el-dialog__body {
-    padding: 0 !important;
-}
-
-.el-dialog__header {
-    padding: 12px !important;
-    padding-bottom: 0px !important;
-}
-
-.monthlyCalendarLarge th {
-    border-bottom: 1px solid var(--primary-light-color-1);
-}
-
-.monthlyCalendarLarge th,
-.monthlyCalendarLarge td {
-    text-align: right;
-    padding: 2px;
-    width: 14.285%;
-}
-
-.monthlyCalendarLarge td {
-    border: 1px solid var(--primary-light-color-1);
-}
-
 .current-day {
     background-color: var(--primary-light-sharp-color-2);
     color: #fff;
@@ -342,36 +364,8 @@ table {
 
 .current-day:hover .calendar-day-select {
     background-color: var(--primary-light-sharp-color-1);
-
 }
 
-.eventinfo-container {
-    text-align: left;
-    font-size: 12px;
-    display: block;
-    padding: 0 10px;
-    border-radius: 5px;
-    margin: 5px;
-    cursor: pointer;
-}
-
-.background-highlight-1 {
-    border: 0.5px solid var(--primary-light-color-1);
-    background-color: var(--primary-light-color-1);
-}
-
-.background-highlight-1:hover {
-    border: 0.5px solid var(--primary-light-sharp-color-1);
-}
-
-.more-eventinfo-container {
-    text-align: center;
-    font-size: 12px;
-    display: block;
-    padding: 0 10px;
-    margin: 2px;
-    cursor: pointer;
-}
 
 /* not work */
 /* .drag-cursor {
@@ -383,16 +377,102 @@ table {
     background-color: rgb(233, 244, 248);
 }
 
-.monthlyCalendarLarge {
+/* calendar grid */
+.seven-grid {
     display: grid;
-  grid-template-columns: auto auto auto;
-    grid-auto-rows: 120px;
+    grid-template-columns: repeat(7, 12vw);
     gap: 0px;
-    /* 7 columns for 7 days of the week */
+    color: var(--primary-font-color-2);
+    text-align: center;
 }
 
-.day-label,
+.calendar-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 12vw);
+    grid-auto-rows: 14vh;
+    gap: 0px;
+    color: var(--primary-font-color-2);
+    text-align: right;
+}
+
+.monthlyCalendarLarge {
+    border-top: 1px solid var(--primary-light-color-1);
+    border-left: 1px solid var(--primary-light-color-1);
+}
+
 .day {
-    border: 1px solid black;
+    border-bottom: 1px solid var(--primary-light-color-1);
+    border-right: 1px solid var(--primary-light-color-1);
+}
+
+.eventinfo-container {
+    text-align: left;
+    font-size: 12px;
+    display: block;
+    padding: 0 10px;
+    border-radius: 5px;
+    margin: 5px 2.5%;
+    cursor: pointer;
+    box-sizing: border-box;
+}
+
+/* show 'n more' in calendar */
+.more-eventinfo-container {
+    text-align: center;
+    font-size: 12px;
+    display: block;
+    padding: 0 10px;
+    margin: 2px;
+    cursor: pointer;
+}
+
+.ellipsis-truncate {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.background-highlight-1 {
+    border: 0.5px solid var(--primary-light-color-1);
+    background-color: var(--primary-light-color-1);
+}
+
+.background-highlight-1:hover {
+    border: 0.5px solid var(--primary-light-sharp-color-1);
+}
+
+
+/* For resizable event bar*/
+.resizable-bar {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 10px;
+    cursor: col-resize;
+}
+
+.resizable-bar.left {
+    left: 0;
+}
+
+.resizable-bar.right {
+    right: 0;
+}
+
+/* event dialog related */
+.event-dialog {
+    background: var(--primary-background-color-1);
+    border-radius: 25px;
+    padding: 0px 10px;
+    /* box-shadow: none; */
+}
+
+.el-dialog__body {
+    padding: 0 !important;
+}
+
+.el-dialog__header {
+    padding: 12px !important;
+    padding-bottom: 0px !important;
 }
 </style>
