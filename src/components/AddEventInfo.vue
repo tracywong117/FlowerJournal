@@ -145,11 +145,15 @@ export default {
           this.eventinfo.endDate = temp;
         }
       }, 100);
+      this.allEventRenderWay = this.renderAllEventInCalendar();
+      console.log(this.allEventRenderWay);
       this.saveEventData();
     },
     handleDelete() {
       this.showEventDialog = false;
       this.events = this.events.filter(event => event.id !== this.eventinfoid);
+      this.allEventRenderWay = this.renderAllEventInCalendar();
+      console.log(this.allEventRenderWay);
       this.saveEventData();
     },
   },
@@ -170,6 +174,8 @@ export default {
 
       // const tryIfUpdatedInEvents = this.events.find(event => event.id === this.eventinfoid) || {} ;
       // console.log(tryIfUpdatedInEvents == this.eventinfo);
+      this.allEventRenderWay = this.renderAllEventInCalendar();
+      console.log(this.allEventRenderWay);
       this.saveEventData();
     }
   },

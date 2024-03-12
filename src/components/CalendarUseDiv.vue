@@ -1,5 +1,6 @@
 <template>
-    <div style="display: flex; justify-content: center; align-items: center; flex-direction: column;" class="unselectable">
+    <div style="display: flex; justify-content: center; align-items: center; flex-direction: column;"
+        class="unselectable">
         <div style="display: flex; justify-content: center; align-items: center;">
             <el-button plain color="rgb(139, 92, 246)" style="margin: 0 100px 0 0;" @click="prevMonth">
                 <SvgIcon type="mdi" :path="mdiChevronLeft_path"></SvgIcon>
@@ -27,26 +28,33 @@
                             @dblclick="addNewEvent(Object.keys(dayObj)[0])">
                             <span class="calendar-day-select"
                                 :class="{ 'current-day': isCurrentDay(Object.keys(dayObj)[0]), 'not-current-month': isNotInputMonth(Object.keys(dayObj)[0]) }"
-                                @click="handleSelectDate(Object.keys(dayObj)[0])">{{
-                                    Object.values(dayObj)[0] }}</span>
-                            <div v-for="eventinfo in getEventsForDate(Object.keys(dayObj)[0]).slice(0, 2)  " :style="{
-                                'opacity': eventinfo === draggedItem ? '0.5' : '1',
-                                'transition': 'opacity 0.3s',
-                                'width': getWidthFromDayNums(eventinfo.date, eventinfo.endDate) + '%',
-                            }" style="position: relative;">
+                                @click="handleSelectDate(Object.keys(dayObj)[0])">
+                                {{ Object.values(dayObj)[0] }}</span>
+                            <div v-for="(eventinfo, dayEventIndex) in getEventsForDate(Object.keys(dayObj)[0]).slice(0, 2)" :style="{
+                'opacity': eventinfo === draggedItem ? '0.5' : '1',
+                'transition': 'opacity 0.3s',
+                // 'width': getWidthFromDayNums(eventinfo.date, eventinfo.endDate) + '%',
+            }" style="position: relative;">
 
-                                <div :id="'resizableBar' + eventinfo.id"
-                                    class="eventinfo-container background-highlight-1 ellipsis-truncate" :draggable="true"
-                                    @dragstart="startDrag(eventinfo, $event);" @dragend="draggedItem = null" :style="{
-                                    }" @click="handleOpenEventDialog(eventinfo)">
+                                <div v-if="eventinfo !== null" :id="'resizableBar' + eventinfo.id"
+                                    class="eventinfo-container background-highlight-1 ellipsis-truncate"
+                                    :draggable="true" @dragstart="startDrag(eventinfo, $event);"
+                                    @dragend="draggedItem = null" :style="{
+                'width': getWidthFromDayNums(eventinfo.date, eventinfo.endDate, dayEventIndex)
+            }" @click="handleOpenEventDialog(eventinfo)">
                                     <span>
                                         {{ eventinfo.name }}
                                     </span>
+                                    <div class="resizable-bar left"></div>
+                                    <!-- @mousedown="startLeftResize($event, div.id, div.row, div.col)" -->
+                                    <div class="resizable-bar right"></div>
+                                    <!-- @mousedown="startRightResize($event, eventinfo)" -->
                                 </div>
-                                <div class="resizable-bar right" @mousedown="startRightResize($event, eventinfo)"></div>
-                                <!-- <div class="resizable-bar left"
-                                    @mousedown="startLeftResize($event, div.id, div.row, div.col)"
-                                    ></div> -->
+
+                                <div v-if="eventinfo === null"
+                                class="eventinfo-container ellipsis-truncate" style="visibility: hidden;">
+                                XXX
+                                </div>
 
                             </div>
 
@@ -77,7 +85,7 @@
         <add-event-info :eventinfoid="showEventId" :key="dialogKey"></add-event-info>
     </el-dialog>
 </template>
-    
+
 <script>
 import { ElButton, ElPopover, ElDialog } from 'element-plus';
 import SvgIcon from '@jamescoyle/vue-icon';
@@ -98,17 +106,51 @@ export default {
         const calendarState = toRefs(calendarStore);
 
         const getEventsForDate = (date) => {
-            return calendarState.events.value.filter((eventinfo) => {
-                const eventDate = new Date(eventinfo.date);
-                const providedDate = new Date(date);
+            if (!calendarState.allEventRenderWay.value) {
+                return [];
+            } else {
+                const offset = new Date(date).getTimezoneOffset();
+                const tempdate = new Date(new Date(date).getTime() - (offset * 60 * 1000));
+                const formattedDate = new Date(tempdate).toISOString().split('T')[0];
 
-                return eventDate.toLocaleDateString() === providedDate.toLocaleDateString();
-            });
+                const targetDate = calendarState.allEventRenderWay.value[formattedDate];
+                if (targetDate) {
+                    const targetEventIds = targetDate['listed_event'];
+                    const toRender = [];
+                    for (const id in targetEventIds) {
+                        if (targetEventIds[id] && typeof targetEventIds[id] === 'string' && targetEventIds[id].startsWith('[')) {
+                            toRender.push(targetEventIds[id].slice(3));
+                        } else {
+                            toRender.push(null);
+                        }
+                    }
+
+                    const toReturn = toRender.map((item) => {
+                        if (item !== null) {
+                            return calendarState.events.value.find((eventinfo) => eventinfo.id === item) || null;
+                        }
+                        // If id is null, then return null
+                        return null;
+                    });
+                    console.log("toReturn in", formattedDate, toReturn);
+                    return toReturn;
+                }
+
+                return [];
+
+                // Old way to show event on each day
+                // return calendarState.events.value.filter((eventinfo) => {
+                //     const eventDate = new Date(eventinfo.date);
+                //     const providedDate = new Date(date);
+
+                //     return eventDate.toLocaleDateString() === providedDate.toLocaleDateString();
+                // });
+            };
         };
-
         return {
             ...calendarState,
             getEventsForDate,
+            renderAllEventInCalendar: calendarStore.renderAllEventInCalendar,
             saveEventData: calendarStore.saveEventData,
         };
     },
@@ -130,6 +172,13 @@ export default {
             resizingObj: null,
             // dragging: false
         };
+    },
+    beforeMount() {
+        this.allEventRenderWay = this.renderAllEventInCalendar();
+        console.log(this.allEventRenderWay);
+    },
+    watch: {
+
     },
     computed: {
         year() {
@@ -182,14 +231,26 @@ export default {
             const diffInMs = end - start;
             const diffInDays = diffInMs / (24 * 60 * 60 * 1000);
 
-            return Math.ceil(diffInDays); 
+            return Math.ceil(diffInDays);
         },
-        getWidthFromDayNums(startDate, endDate) {
+        getWidthFromDayNums(startDate, endDate, dayEventIndex) {
             // console.log(this.events);
             // console.log(startDate);
-            const dayNums = this.DayNums(startDate, endDate);
-            console.log(dayNums);
-            return (dayNums+1) * 100;
+            // const dayNums = this.DayNums(startDate, endDate);
+            // console.log(dayNums);
+
+            const offset = new Date(startDate).getTimezoneOffset();
+            const tempdate = new Date(new Date(startDate).getTime() - (offset * 60 * 1000));
+            const formattedDate = new Date(tempdate).toISOString().split('T')[0];
+            // console.log("dayEventIndex", dayEventIndex);
+            console.log("important",this.allEventRenderWay[formattedDate]['listed_event']);
+            const dayNums = parseInt(this.allEventRenderWay[formattedDate]['listed_event'][dayEventIndex][1])-1;
+            
+            console.log(this.allEventRenderWay[formattedDate]['listed_event'][dayEventIndex]);
+            console.log("dayNums", dayNums);
+
+            const temp = dayNums - 5 * 2;
+            return 'calc(' + (dayNums + 1) * 100 + '% + ' + temp + 'px)';
         },
         // Check if the day is today
         isCurrentDay(day) {
@@ -234,26 +295,28 @@ export default {
                 this.hoveredField = newIndex;
             }
         },
-        // drop the dragged item
+        // drop the dragged item (event in calendar)
         drop(newIndex) {
             if (this.draggedItem) {
                 if (this.draggedItem.index !== newIndex) {
                     console.log(`Item moved to index: ${newIndex}`);
                 }
 
+                // fix timezone issue (we don't store timezone)
                 const offset = new Date(newIndex).getTimezoneOffset();
                 const tempdate = new Date(new Date(newIndex).getTime() - (offset * 60 * 1000));
                 const formattedDate = tempdate.toISOString().split('T')[0];
+                console.log("Formatted date", formattedDate);
 
-                console.log(formattedDate);
-                // calculate change in date
-                const changeInDate = new Date(tempdate).getDate() - new Date(this.draggedItem.date).getDate();
-                console.log(changeInDate);
+                const changeInMilliseconds = new Date(tempdate) - new Date(this.draggedItem.date);
+                console.log("ChangeInDate", changeInMilliseconds);
 
                 this.draggedItem.date = formattedDate;
-                this.draggedItem.endDate = new Date(new Date(this.draggedItem.endDate).getTime() + (changeInDate * 24 * 60 * 60 * 1000)).toISOString().split('T')[0];
-                
-                console.log(this.events);
+                this.draggedItem.endDate = new Date(new Date(this.draggedItem.endDate).getTime() + changeInMilliseconds).toISOString().split('T')[0];
+
+                this.allEventRenderWay = this.renderAllEventInCalendar();
+                console.log(this.allEventRenderWay);
+                this.saveEventData();
 
                 this.draggedItem = null;
                 this.hoveredField = null;
@@ -282,6 +345,8 @@ export default {
                 category: '',
                 allDay: true,
             });
+            this.allEventRenderWay = this.renderAllEventInCalendar();
+            console.log(this.allEventRenderWay);
             this.saveEventData();
         },
         startRightResize(e, eventinfo) {
@@ -313,8 +378,6 @@ export default {
                 width = maxWidth
             }
 
-            // this.resizableDivs[this.resizingIndex].width = width - 5;
-
             let height = e.clientY - span.offsetHeight
             let nearestMultipleHeight = Math.round(height / 120)
             console.log(nearestMultipleHeight)
@@ -328,7 +391,7 @@ export default {
     },
 };
 </script>
-    
+
 <style>
 .current-day {
     background-color: var(--primary-light-sharp-color-2);
@@ -405,15 +468,17 @@ export default {
     border-right: 1px solid var(--primary-light-color-1);
 }
 
+/* left right marin is 5px which is important for getWidthFromDayNums */
 .eventinfo-container {
     text-align: left;
     font-size: 12px;
     display: block;
     padding: 0 10px;
     border-radius: 5px;
-    margin: 5px 2.5%;
+    margin: 5px;
     cursor: pointer;
     box-sizing: border-box;
+    position: relative;
 }
 
 /* show 'n more' in calendar */
