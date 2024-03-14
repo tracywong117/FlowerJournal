@@ -30,30 +30,30 @@
                                 :class="{ 'current-day': isCurrentDay(Object.keys(dayObj)[0]), 'not-current-month': isNotInputMonth(Object.keys(dayObj)[0]) }"
                                 @click="handleSelectDate(Object.keys(dayObj)[0])">
                                 {{ Object.values(dayObj)[0] }}</span>
-                            <div v-for="(eventinfo, dayEventIndex) in getEventsForDate(Object.keys(dayObj)[0]).slice(0, 2)" :style="{
+                            <div v-for="(eventinfo, dayEventIndex) in getEventsForDate(Object.keys(dayObj)[0]).slice(0, 2)"
+                                :style="{
                 'opacity': eventinfo === draggedItem ? '0.5' : '1',
                 'transition': 'opacity 0.3s',
-                // 'width': getWidthFromDayNums(eventinfo.date, eventinfo.endDate) + '%',
             }" style="position: relative;">
 
                                 <div v-if="eventinfo !== null" :id="'resizableBar' + eventinfo.id"
                                     class="eventinfo-container background-highlight-1 ellipsis-truncate"
                                     :draggable="true" @dragstart="startDrag(eventinfo, $event);"
                                     @dragend="draggedItem = null" :style="{
-                'width': getWidthFromDayNums(eventinfo.date, eventinfo.endDate, dayEventIndex)
+                'width': getWidthFromDayNums(Object.keys(dayObj)[0], dayEventIndex),
             }" @click="handleOpenEventDialog(eventinfo)">
-                                    <span>
+                                    <div>
                                         {{ eventinfo.name }}
-                                    </span>
+                                    </div>
                                     <div class="resizable-bar left"></div>
                                     <!-- @mousedown="startLeftResize($event, div.id, div.row, div.col)" -->
                                     <div class="resizable-bar right"></div>
                                     <!-- @mousedown="startRightResize($event, eventinfo)" -->
                                 </div>
 
-                                <div v-if="eventinfo === null"
-                                class="eventinfo-container ellipsis-truncate" style="visibility: hidden;">
-                                XXX
+                                <div v-if="eventinfo === null" class="eventinfo-container ellipsis-truncate"
+                                    style="visibility: hidden;">
+                                    XXX
                                 </div>
 
                             </div>
@@ -132,7 +132,6 @@ export default {
                         // If id is null, then return null
                         return null;
                     });
-                    console.log("toReturn in", formattedDate, toReturn);
                     return toReturn;
                 }
 
@@ -233,21 +232,11 @@ export default {
 
             return Math.ceil(diffInDays);
         },
-        getWidthFromDayNums(startDate, endDate, dayEventIndex) {
-            // console.log(this.events);
-            // console.log(startDate);
-            // const dayNums = this.DayNums(startDate, endDate);
-            // console.log(dayNums);
-
+        getWidthFromDayNums(startDate, dayEventIndex) {
             const offset = new Date(startDate).getTimezoneOffset();
             const tempdate = new Date(new Date(startDate).getTime() - (offset * 60 * 1000));
             const formattedDate = new Date(tempdate).toISOString().split('T')[0];
-            // console.log("dayEventIndex", dayEventIndex);
-            console.log("important",this.allEventRenderWay[formattedDate]['listed_event']);
-            const dayNums = parseInt(this.allEventRenderWay[formattedDate]['listed_event'][dayEventIndex][1])-1;
-            
-            console.log(this.allEventRenderWay[formattedDate]['listed_event'][dayEventIndex]);
-            console.log("dayNums", dayNums);
+            const dayNums = parseInt(this.allEventRenderWay[formattedDate]['listed_event'][dayEventIndex][1]) - 1;
 
             const temp = dayNums - 5 * 2;
             return 'calc(' + (dayNums + 1) * 100 + '% + ' + temp + 'px)';

@@ -74,19 +74,20 @@ export const useCalendarStore = defineStore('calendar', {
       const dateIndexMap = {};
       const nullPlaceRecord = {};
       const result = {};
-      const signOfStart = '+';
       const startofweek = 0; // Sunday
 
       // Iterate through the events
       for (const event of allEvents) {
-        console.log("Adding event", event.id);
+        // console.log("Adding event", event.id);
         const startDate = new Date(event.date);
         const endDate = new Date(event.endDate);
 
         const temp = [];
 
         for (let date = new Date(startDate); date <= endDate; date.setDate(date.getDate() + 1)) {
-          const dateString = date.toISOString().split('T')[0];
+          const offset = new Date(date).getTimezoneOffset();
+          const tempdate = new Date(new Date(date).getTime() - (offset * 60 * 1000));
+          const dateString = tempdate.toISOString().split('T')[0];
 
           // initialize
           if (!result[dateString]) {
@@ -108,7 +109,9 @@ export const useCalendarStore = defineStore('calendar', {
             nullOKIndex = toCheck[i];
             // if every place in this index is null or empty 
             for (let dateTemp = new Date(startDate) + 1; dateTemp <= endDate; dateTemp.setDate(date.getDate() + 1)) {
-              const dateStringTemp = date.toISOString().split('T')[0];
+              const offset = new Date(date).getTimezoneOffset();
+              const tempdate = new Date(new Date(date).getTime() - (offset * 60 * 1000));
+              const dateStringTemp = tempdate.toISOString().split('T')[0];
               // no null place or not empty place
               if (!nullPlaceRecord[dateStringTemp].includes(toCheck[i]) && nullPlaceRecord.slice(-1) > toCheck[i]) {
                 nullOKIndex = null;
@@ -125,14 +128,19 @@ export const useCalendarStore = defineStore('calendar', {
         // Really add the event to the result at correct index
         // Use null or empty place if possible
         if (nullOKIndex !== null) {
-          console.log("Use null place", nullOKIndex);
+          // console.log("Use null place", nullOKIndex);
           let isStart = true;
           for (let date = new Date(startDate); date <= endDate; date.setDate(date.getDate() + 1)) {
             const dayofWeek = date.getDay();
             const durationInDays = (endDate - date) / (1000 * 60 * 60 * 24) + 1;
             // Sunday - Saturday : 0 - 6
-            const dateString = date.toISOString().split('T')[0];
+
+            const offset = new Date(date).getTimezoneOffset();
+            const tempdate = new Date(new Date(date).getTime() - (offset * 60 * 1000));
+            const dateString = tempdate.toISOString().split('T')[0];
+
             var dayNumInWeek = Math.min(7 - dayofWeek, durationInDays);
+            // console.log("dateString", dateString);
             // console.log("7-dayofWeek", 7 - dayofWeek);
             // console.log("endDate - date + 1", durationInDays);
             // console.log("dayNumInWeek", dayNumInWeek);
@@ -153,7 +161,7 @@ export const useCalendarStore = defineStore('calendar', {
             dateIndexMap[dateString] = result[dateString].listed_event.length;
 
             // remember to delete the null place index from nullPlaceRecord
-            console.log(nullPlaceRecord[dateString]);
+            // console.log(nullPlaceRecord[dateString]);
             if (nullPlaceRecord[dateString]) {
               const indexToDelete = nullPlaceRecord[dateString].indexOf(nullOKIndex);
               if (indexToDelete > -1) {
@@ -170,8 +178,11 @@ export const useCalendarStore = defineStore('calendar', {
             const dayofWeek = date.getDay();
             const durationInDays = (endDate - date) / (1000 * 60 * 60 * 24) + 1;
             // Sunday - Saturday : 0 - 6
-            const dateString = date.toISOString().split('T')[0];
+            const offset = new Date(date).getTimezoneOffset();
+            const tempdate = new Date(new Date(date).getTime() - (offset * 60 * 1000));
+            const dateString = tempdate.toISOString().split('T')[0];
             var dayNumInWeek = Math.min(7 - dayofWeek, durationInDays);
+            // console.log("dateString", dateString);
             // console.log("7-dayofWeek", 7 - dayofWeek);
             // console.log("endDate - date + 1", durationInDays);
             // console.log("dayNumInWeek", dayNumInWeek);
