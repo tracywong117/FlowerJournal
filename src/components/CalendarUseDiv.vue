@@ -41,6 +41,7 @@
                                     :draggable="true" @dragstart="startDrag(eventinfo, $event);"
                                     @dragend="draggedItem = null" :style="{
                 'width': getWidthFromDayNums(Object.keys(dayObj)[0], dayEventIndex),
+                'z-index': '999',
             }" @click="handleOpenEventDialog(eventinfo)">
                                     <div>
                                         {{ eventinfo.name }}
@@ -52,7 +53,7 @@
                                 </div>
 
                                 <div v-if="eventinfo === null" class="eventinfo-container ellipsis-truncate"
-                                    style="visibility: hidden;">
+                                    style="visibility: hidden; z-index: -1;">
                                     XXX
                                 </div>
 
